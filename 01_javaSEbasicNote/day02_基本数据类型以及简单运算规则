@@ -1,0 +1,157 @@
+#  day02_基本数据类型以及简单运算规则
+
+## 数据类型
+
+* java中的数据类型包括两种:
+    * 1.基本数据类型
+    * 2.引用数据类型
+
+* 基本数据类型介绍(4类8种)
+    * 1.整型
+        * byte  :占一个字节
+        * short :占两个字节
+        * int   :占四个字节
+        * long  :占八个字节    
+    * 2.浮点型
+        * float :占四个字节
+        * double:占八个字节
+    * 3.布尔型
+        * true
+        * false 
+    * 4.字符型
+        * char  :占两个字节.  0~65535
+
+* 基本数据类型的注意事项
+    * 小数默认的数据类型是double型 
+    * 进行混合运算的时候,byte,short,char不会相互转换,都会换转为int数据类型.数据类型转换规则:
+    byte,short,char-->int-->long-->float-->double  
+    * 运算符%.如果左边绝对值小于右边,结果为左边.否则为余数或者0
+         
+    
+## 运算符
+
+* 逻辑运算符
+    * &:遇false,最终为false,会执行完整个运算再判断
+    * |:遇true,则为true,会执行完整个运算再判断
+    * &&:遇false则false
+    * ||:遇true则true
+    
+* 三元运算符
+    * 条件表达式?表达式1:表达式2;
+        满足条件表达式,执行表达式1,否则执行表达式2
+        
+## 判断语句
+
+*  if
+
+    ```test
+    if(布尔表达式){
+        //语句体
+    }
+    ```
+*  switch
+
+    ```test
+    switch(表达式){
+        case 常量1:语句序列1;
+        break;
+        case 常量2:语句序列2;
+        break;
+        ...
+        default:语句序列n;
+    }
+    ```
+
+## 循环语句 
+
+* 三种循环方式:
+    * 1.while
+    
+    ```test
+    while(boolean) {
+        //循环语句
+    }
+    ```
+    * 2.do...while 该循环体至少会执行一次
+    
+    ```test
+    do {
+        //循环体
+    }while(boolean)
+    ``` 
+    * 3.for 
+    
+    ```test
+    for(初始化;boolean;更新) {
+        //代码语句
+    }
+    ```
+    
+* 两个跳转关键字
+
+    * 1.break;
+    跳出break在整个循环;去执行接下来要去执行的部分 
+    
+    * 2.continue;
+    跳出整个循环中的一条循环,接着执行接下来的循环语句
+    在for循环语句中,跳转到“更新”的部分
+    在while和do...while里,程序立即跳转到boolean表达式的判断语句
+    
+## 数组
+
+* 创建一维数组的两种方法
+
+* 动态初始化
+
+    ```test
+    int[] arr=new int[5];
+    ```
+    
+* 静态初始化
+
+ ```test
+ int arr0[]=new int[]{0,1,2,3,4}; 
+ int arr1[]={0,1,2,3,4};
+ ```
+ 
+* 数组中常出现的两种异常
+    * 1.ArrayIndexOutOfBoundsException 索引越界异常
+    
+    * 2.NullPointerException 空指针异常
+        当数组被赋值为null时会出现空指针异常
+        
+* 创建二维数组
+
+* 1.动态初始化 
+    
+ ```test
+ int[][] arr=new int[3][2]; //三行两列的二维数组
+ int[][] arr=new int[3][];  //有三个一维数组,但都没有被赋值,不被赋值,默认为null
+ ``` 
+ 
+ * 2.静态初始化
+ 
+ ```test
+ int[][] arr={{1,2},{3,4,5},{6,7,8,9}};
+ ```
+ 
+ * 3.二维数组的遍历
+ 
+ ```java
+ public class TwoArray{
+    public static void main(String[] args) {
+        int[][] arr={{1,2},{3,4,5},{6,7,8,9}};
+        //System.out.println(arr.length);
+        //System.out.println(arr[0].length);
+        
+        for(int i=0;i<arr.length;i++){
+            for(int j=0;j<arr[i].length;j++){
+                System.out.print(arr[i][j]+" ");
+            }
+        }
+    }
+} 
+```
+
+## 总结图
+![](https://i.loli.net/2019/01/04/5c2f48169d392.png)
