@@ -1,0 +1,224 @@
+# 01_day08javaSE基础08
+
+[TOC]   
+
+## 01_代码块
+
+* 代码块的书写格式
+
+使用{}括起来的就是代码块
+
+* 代码块的分类
+
+    * 局部代码块
+
+        * 位置:存在于方法中
+    
+        * 作用:为了限制变量的生命周期,在代码块内的变量除了代码块就结束了其生命周期
+    
+        ```java
+        int a=10;                     //main 方法中的成员变量
+        {
+            int b=20;                 //代码块中的成员变量
+            System.out.println(a);    //10
+            System.out.println(b);    //20
+        }
+            System.out.println(a);    //10
+            System.out.println(b);    //false, 因为出了局部代码块,b就没有定义了         
+        ```
+    
+    * 构造代码块
+
+        * 位置:存在于类中方法外
+
+        * 作用:给对象统一初始化数据,一创建对象就被加载,优先于构造函数执行
+
+    ```java
+    public class Code_Block{
+    public static void main(String[] args) {
+        Student s1=new Student();                //创建无参对象
+                
+        Student s2=new Student("zhangsan",18);   //创建有参对象
+        }
+}
+class Student{
+        private String name;                         //私有化成员变量
+        private int age;
+        public Student(){                            //空参构造函数
+            System.out.println("this is a no paramater funtion");
+        }
+        public Student(String name,int age){          //有参构造函数
+            this.name=name;
+            this.age=age;
+            System.out.println("this is a paramater funtion");
+        }
+{                                             //构造代码块
+        play();                                  //调用play()方法
+}
+        public void play(){                          //play()方法
+            System.out.println("Construct Code Block");
+            }
+    }          
+```
+
+    * 静态代码块 
+
+        * 书写方式:static{}
+
+        * 位置:存在与类中方法外
+        
+        * 作用:为类的属性初始化,类一加载就被调用,且只被调用一次
+
+        * 注意:当mian函数和普通函数中都含有静态代码块时
+        
+            * 1.如果创建了普通函数的对象,则静态代码块都会被执行,优先执行main方法里的静态代码块
+
+            * 2.如果没有创建普通函数的对象,静态代码块不会被执行,只执行main方法中的静态代码块 
+
+    ## 02_继承extends
+        
+    * 定义:子承于父就是继承
+
+    * 继承的优缺点:
+
+        * 优点:提高了代码的复用性和维护性,类与类之间产生关系,是多态的前提
+
+        * 缺点:类的耦合性增强了
+
+            * 开发要求,高内聚,低耦合.
+            * 内聚:自己完成某件事的能力.   耦合:类与类之间的关系
+
+    ## 03_java中类的继承特点
+        
+    * java中的类是单继承的特点,既是一个儿子只有一个爹,但一个爹可以有很多个儿子
+
+    * 如果想看最全的方法,看最底层的类;如果想看共性,看最顶层的类
+
+    * 子类只能继承父类中的非私有成员方法和变量
+
+    * 子类不能继承父类的构造方法,单可以通过super来访问父类的构造方法
+
+    ## 04_this和super
+        
+    * 调用成员变量
+
+    * this.即可以调用子类成员变量,又可以调用父类成员变量
+    * 注意:调用父类成员变量的前提是子类中没有该成员变量,如果父类子类中有同名的成员变量,则依然是调用的子类成员变量
+
+    * super.调用的是父类成员变量
+
+    * 调用构造方法
+
+        * this(...)调用的是子类构造方法
+
+        * super(...)调用的是父类构造方法
+
+    * 调用成员方法
+
+        * this.即可以调用子类成员方法,有可以调用父类成员方法
+
+        * super.调用父类成员方法
+
+    ## 05_继承中的一些关系
+        
+    * 成员变量
+
+    * 如果继承中出现的是同名的成员变量,调用的是子类中的成员变量
+
+    ```java
+    class Father{
+        int num1=10;
+    }
+             
+    class Son extends Father{
+        int num2=20;
+        int num1=30;
+        System.out.println(num1);     //30
+        System.out.println(num2);     //20        
+    }
+    ```
+             
+    * 构造方法
+
+        * 子类中所有的(包括有参和无参)构造方法默认都会使用父类中的空参构造方法
+        * 注意:如果有参的构造方法中使用了super(参数1,参数2...),此时子类中的有参构造方法不再默认使用父类的空参构造方法,而是使用有参构造方法
+
+    ```java
+    public class Demo2{
+    public static void main(String[] args){
+        Son s=new Son();    //创建子类对象
+        }
+    }                
+    class Father{
+    public Father(){        //父类无参构造方法
+        System.out.println("Father construct");
+        }
+    }               
+    class Son extends Father{   //子类继承父类无参构造
+        public Son(){
+        //super();       此处相当于省去了super()
+        System.out.println("Son construct");
+        }
+    }
+    ```
+                
+    * 成员方法(使用方式和成员变量使用方式一样)
+
+    * 如果继承中出现的是同名的成员方法,调用的是子类中的成员方法
+
+
+    ## 06_方法的重写
+
+            
+    * 定义:方法的重写其实就是子类中写了一个和父类相同的方法名的方法,但是子类中有了自己和父类不一样的内容.
+
+    * 方法重写的注意事项
+
+    * 父类中的私有方法不能重写,-->继承都不能继承,还想重写,可能吗???
+
+    * 子类重写父类方法时,访问权限不能更低,最好一致就行了
+
+    * 父类是静态方法,子类重写的方法也必须是静态.静态只能覆盖静态
+
+    ## 07_final 
+                       
+    * final修饰类,类不能被继承
+
+    * final修饰方法,方法不能被重写
+
+    * final修饰变量,变量变成了常量.只能被赋值一次
+
+    ```java
+    public class Demo08{
+    public static void main(String[] args) {
+        Student s=new Student();
+        s.play();
+        }
+    }
+    class Persion{               //final修饰类,类不能被继承
+        final int NUM=10;             //final修饰后变量,变量变成常量,常量要全部大写
+        public final void play(){     //final修饰方法,方法不能被重写
+            System.out.println("persion play");
+        }
+    }
+    class Student extends Persion{
+        public void play(){
+            System.out.println("student play");
+        }
+    }            
+```
+
+## 08_final关键字修饰局部变量
+
+* 基本类型:是值,不能被修改
+
+* 引用数据类型:是地址值,地址不能被修改,但属性可以改变
+
+## 09_总结
+
+![](https://i.loli.net/2019/01/08/5c34916d18528.png)
+               
+               
+                    
+                
+                    
