@@ -1,0 +1,131 @@
+# 01_day06javaSE基础06
+
+## 介绍面向对象
+
+* java中规定万物皆对象
+ 
+* 如何使用对象?
+ 
+    * 格式:类名 对象名=new 类名();
+     
+* 如何使用成员变量呢?
+
+    * 对象名.变量名
+    
+* 如何使用成员方法呢?
+
+    * 对象名.方法名(...)  
+    
+## 成员变量和局部变量
+
+* 成员变量:
+
+    * 存在于类中方法外,随着类的加载产生,随着类的消失而消失,存放于堆内存中,有默认初始化值
+* 局部变量:
+
+    * 存在于方法中或者方法声明上,随着方法的加载产生,随着方法的消失而消失,存放在栈内存中,没有初始化值,必须给定.
+
+## 方法的形式参数是类名的时候如何调用
+
+* 举例说明
+
+ ```java
+ public class Demo_Student{
+    public static void main(String[] args) {
+        Student s=new Student();      //创建Student对象s
+        print(s);                     //方法中直接引用对象就可以调用
+    }
+    public static void print(Student stu){  //含有形式参数的方法
+        stu.name="zhangsan";
+        stu.age=18;
+        System.out.println(stu.name+"..."+stu.age);
+        stu.play();
+        stu.sleep();
+    }
+}
+//定义一个Student类
+class Student{
+    String name;       // 成员变量name
+    int age;           // 成员变量age
+    public void play(){      //成员方法play
+        System.out.println("play basketball");
+    }
+    public void sleep(){     //成员方法sleep
+        System.out.println("go to sleep");
+    }
+}
+ ```  
+ 
+ ## 匿名对象
+ 
+ * 何处要用匿名对象?
+ 
+    调用方法,而且只调用一次想节省代码时使用,调用多次时不合适, 匿名对象调用完毕后就是垃圾
+    //测试发现可以调用多次
+    
+ * 重点:匿名对象可以作为实际参数传递
+ 
+ ## this关键字
+ 
+ * 重点:this代表当前对象的引用
+ 
+ * this作用:用于区分成员变量和局部变量
+ 
+ * 代码举例分析:
+ 
+ ```java
+  public class Test{
+     public static void main(String[] args) {
+         Student s=new Student();
+         s.setName("zhangsan");
+         s.setAge(18);
+         System.out.println(s.getName()+"..."+s.getAge());
+     }
+ }
+
+ class Student {
+     private String name;
+     private int age;
+     private float height;
+    /*
+    n为局部变量,name为成员变量
+    */
+     public void setName(String n){
+        name=n;
+     }
+     //返回成员变量name
+     public String getName(){
+         return name;
+     }
+     //age为局部变量
+     public void setAge(int age){
+         //根据就近原则,此处的age都是局部变量,相当于成员变量的age没有被赋值
+         age=age;
+     }
+     //返回的age为成员变量,因为没有被赋值,所以返回结果为默认的0
+     public int getAge(){
+         return age;
+     }
+     /*
+     this代表的是当前对象的引用,当前创建的是s对象,所以this在这里相当于s
+     如果此时再创建一个s1对象,this在这里即相当于s,又相当于s1,就看谁来
+     调用setHeight()这个方法,哪个对象调用就相当于哪个对象
+     */
+    //this.height指的是类中的成员变量
+     public void setHeight(float height) {
+         this.height=height;
+     }
+     //返回的height为成员变量
+     public float getHeight(){
+         return height;
+     }
+ }
+  ```
+  
+  
+  ## 总结
+  
+
+  ![](https://i.loli.net/2019/01/07/5c32d7e0b678b.png)
+ 
+ 
