@@ -1,0 +1,308 @@
+# 01_day09javaSE基础09
+
+[TOC]
+
+## 01_多态polymorphic
+
+* 什么是多态?
+
+    * 统一操作作用于不同的对象,可以有不同的解释,产生不同的执行结果,这就是多态性
+
+* 多态的作用
+
+    * 提高代码的复用性,解决项目中紧耦合的问题,提高程序的可扩展性.
+
+* 多态创建的前提
+
+    * 要有继承关系
+
+    * 要有方法重写
+
+    * 父类引用指向子类对象
+
+* 多态中成员访问特点
+
+    * 成员变量
+
+        * 编译看父类,运行看父类
+
+        ```java
+        public class Demo09{
+            public static void main(String[] args){
+                Father f=new Son();             //父类引用指向子类对象
+                System.out.println(f.num);      //编译看左边,执行看右边,输出10
+            }
+        }
+        
+        class Father{                          //创建父类
+            int num=10;                        //父类成员变量
+        }
+        
+        class Son extends Father{              //子类继承父类
+            int num=20;                        //子类成员变量
+        }
+        ```
+        
+    * 成员方法
+
+        * 如果是重写的方法,编译看父类,运行看子类(其实多态的方法必须重写)
+
+        * 扩展
+        
+            * 如果父类有此方法,子类没有,编译运行都是父类
+
+            * 如果父类没有此方法,子类有,编译出错,此时如果还想使用子类方法,就必须向下转型
+
+    * 静态成员方法
+
+        * 编译看父类,运行看父类
+
+        * 扩展
+
+            * 如果父类有此方法,子类没有,编译运行都是父类
+
+            * 如果父类没有此方法,子类有,编译出错,此时如果还想使用子类方法,就必须向下转型
+
+## 02_多态中的向上和向下转型
+
+* 向上转型
+
+`Father f=new Son()`  向上转型
+
+* 向下转型
+
+`Son s=(Son)f`        向下转型
+
+* 解决问题
+
+    *  解决继承中父类没有该方法,而子类有该方法,此时又想调用子类的方法,就需要向下转型
+
+## 03_多态中的注意事项
+
+* 多态中要防止出现类型转换异常的情况ClassCastException
+
+    * 可以使用instanceof进行判断
+
+      ```java
+      if(a instanceof Cat){
+        Cat c=(Cat)a;
+        a.eatMouse();
+      }
+      ```
+      
+## 04_多态中的面试变态题
+
+```java
+public class Demo09{
+    public static void main(String[] args){
+        
+        A a=new B();
+        a.show();
+        
+        B b=new C();
+        b.show();
+        
+    }
+}
+
+class A{
+    public void show(){
+        show2();
+    }
+
+    public void show2(){
+        System.out.println("I");
+    }
+}
+
+class B extends A{
+    public void show2 () {
+        System.out.println("love");
+    }
+}
+
+class C extends B{
+    public void show(){
+        super.show();
+    }
+    public void show2(){
+        System.out.println("you");
+    }
+}
+```
+
+## 05_抽象类
+
+* 什么是抽象类
+
+    * 抽象类表征的是“是什么”,例如男人类和女人类,可以定义抽象类persion
+
+* 抽象类的作用
+    
+    * 抽象类不可以直接创建new对象
+
+* 抽象类的子类
+
+    * 1.是抽象类
+
+    * 2.重写父类中的所有抽象方法(常用)
+
+## 06_抽象类的成员特点
+
+* 成员变量
+
+    * abstract不能修饰属性,包括成员变量和成员常量
+
+* 构造方法
+
+    * 抽象类中可以存在构造方法,但构造方法前绝对没有abstract,否则就不是构造方法了
+
+* 成员变量
+
+    * 抽象方法,强制要求子类要做的事情,因为子类若不是抽象就必须重写抽象方法
+
+        * 抽象类中的抽象方法无实体
+
+    * 非抽象方法,子类继承的事,提高代码的复用性
+    
+## 07_abstract不可以和哪些关键字共存
+
+* abstract不能和final共存
+
+    * 被abstract修饰要求子类必须重写,而被final修饰要求方法不能重写
+
+* abstract不能和private共存
+
+    * 被abstract修饰要求子类必须调用被修饰的方法,被private修饰私有,不让调用
+
+* abstract不能和static共存
+
+    * 被abstract修饰的方法没有实体,但被static修饰的方法可以使用类名.调用,但拿类
+
+        名.调用没有实体的方法是没有意义的
+        
+## 08_接口
+
+* 什么是接口
+
+    * 接口表征的是“能干什么”,例如男人类和女人类,都能吃饭,吃饭就可以定义为接口
+
+* 接口特点
+
+    * 接口用关键字interface表示
+
+        * interface 接口名 {}
+
+    * 类实现接口用implements表示
+
+        * class 类名 implements 接口名 {}
+
+    * 接口不能实力化,有接口绝对不能new
+
+    * 接口的子类
+
+        *  可以是抽象类,意义不大
+
+        * 可以是具体类,但要重写接口里的所有抽象方法
+
+## 09_接口的成员特点
+
+* 成员变量
+
+    * 接口没有成员变量,只有成员常量,定义时默认有public static final
+
+* 构造方法
+
+    * 接口没有构造方法
+
+* 成员方法
+
+    * 接口的成员方法都是抽象的,默认有public abstract
+
+## 10_类与类,类与接口,接口与接口的关系
+
+* 类与类
+
+    * 继承关系,只能单继承,只能有一个亲爹
+
+* 类与接口
+
+    * 实现关系,可以单实现,也能多实现,可以有多个干爹
+
+    * 而且可以在继承一个类的时候多实现
+
+    ```java
+    public class Demo09{
+    public static void main(String[] args){
+        Father f=new Father();      //创建Father对象,其实现了接口GrandFather_One,GrandFather_Two
+        f.speakOne();               //调用speakOne方法
+
+        Son s=new Son();            //创建Son对象,其继承了Father
+        s.speakOne();               //调用speakOne方法
+        s.show();                   //调用show方法
+    }
+}
+interface GrandFather_One{      //定义接口GrandFather_One
+    void speakOne();
+}
+interface GrandFather_Two{      //定义接口GrandFather_Two
+    void speakTwo();
+}
+class Father{                   //类Father
+    public void speakOne(){         //重写接口内的抽象方法
+        System.out.println("speakone");
+    }
+
+    public void speakTwo(){         //重写接口内的抽象方法
+        System.out.println("speaktwo");
+    }
+}
+class Son extends Father implements   GrandFather_One,GrandFather_Two{
+//Son继承Father再实现GrandFather_One,GrandFather_Two
+    public void speakOne(){         //重写Father内的speakOne方法,出现同名执行子类方法
+        System.out.println("Son_speakone");
+    }
+
+    public void show(){             //创建方法show
+        System.out.println("show");
+    }
+}
+    ```
+
+* 接口与接口
+
+    * 继承,可以单继承,也可以多继承
+
+## 11_抽象类与接口的区别
+
+* 成员区别
+
+    * 抽象类
+
+        * 成员变量:可以常量,可以变量
+
+        * 构造函数:有
+
+        * 成员方法:可以抽象,可以非抽象
+
+    * 接口
+
+        * 成员变量:只能常量
+
+        * 构造函数:无
+
+        * 成员方法:只能是抽象的
+
+ * 设计理念区别
+
+    * 抽象类
+
+        * 被继承体现的是"is a"的关系.抽象类中定义的是继承体系的共性功能
+
+    * 接口
+
+        * 被实现体现的是"like a"的关系.接口中定义的是该继承体系的扩展功能
+        
+## 12_总结
+
+![](https://i.loli.net/2019/01/09/5c35c49209c5e.png)
