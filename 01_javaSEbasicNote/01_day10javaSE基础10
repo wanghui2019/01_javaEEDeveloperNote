@@ -1,0 +1,374 @@
+# 01_day10javaSE基础10
+
+[TOC]
+
+## 1_包package
+
+* 包的概述
+
+    * 包是为了将.class的字节码文件进行分类管理,包其实就是文件夹
+
+* 定义包的格式
+
+    * package 包名
+
+    ```java
+    package com.hui;
+    ```
+
+* 包的注意事项
+
+    * 包必须在程序的最前面,并且可执行
+
+    * package在一个java语句中只能有一个
+
+    * 如果没有package,默认表示无包名
+
+* 带包的类的编译与运行
+
+    * 编译: `javac -d . 类名.java`
+
+    * 运行: `java 包名.类名`
+
+    ```java
+    package com.hui;
+    public class Demo10{
+    public static void main(String[] args) {
+        System.out.println("helloworld");
+    }
+    }
+    ```
+    
+    Compile:`javac -d . Demo10.java`
+    
+    run:`java com.hui.Demo10`
+    
+## 2_导包
+
+* 为了使不同包下可以访问,就需要导包,使用import
+
+*  导包过程中的注意事项
+
+    * import 包名:包名要写到具体的类,可以使用.*代替,但不建议,查询速度慢
+
+    `import com.test.Student;` com.test为包名,Student为类名
+    
+    * 所有的包只能有一个主方法
+
+    * 倒入的包的类必须是public类型的
+
+    ```java
+    //包一:
+    package com.test;          //包名
+    public class Student{      //类名,必须public
+    public void show(){
+        System.out.println("import package");
+    }
+    }
+    ```
+    
+    ```java
+    //包二:
+    package com.hui;              //包名
+    import com.test.Student;      //导入包一,要指名包的类名
+    public class Demo10{          //类名
+    public static void main(String[] args) {    //主函数入口,所有的包只能有一个主函数入口
+        Student s=new Student();  //调用包一中的类创建对象
+        s.show();
+    }
+    }
+    ```
+    
+## 3_四种权限修饰符
+
+```test
+              本类   同一包下(子类&无关类)   不同包下(子类)  不同包下(无关类)
+
+private        Y       
+
+default        Y         Y
+
+protected      Y         Y                       Y 
+
+public         Y         Y                       Y               Y
+```
+
+*  对protected`不同包下(子类)`的理解
+
+    * 1.先创建包一com.test,包内定于一个类Student,Student类里定于一个protected
+
+        的方法
+        
+     ```java
+     package com.test;              //包名
+     public class Student{          //类名
+     protected void show(){         //被protected修饰的show方法
+         System.out.println("protected import package");
+     }
+     }
+     ```
+        
+    * 2.再创建第二个包com.hui,包内创建出Student的子类Son继承
+
+     Student,子类中可以调用被protected修饰的方法show()
+     
+     > 备注:如果包一内的Student被public修饰也能被调用,但被
+    private或者default修饰不能被调用
+
+     ```java
+     package com.hui;                //包名
+     import com.test.Student;        //导入包
+     public class Demo10{            
+     public static void main(String[] args) {
+         Son s=new Son();            //创建子类对象
+         s.test();                   //调用子类方法test()
+         s.play();                   //调用子类方法play()
+     }
+     }
+     class Son extends Student{      //Son继承类Student
+     public void play(){             //创建play方法
+         System.out.println("play");
+     }
+     public void test(){             //创建test方法
+         super.show();               //调用父类show方法
+         //show();  直接使用show()也能调用
+     }
+     }
+    ```
+    
+    > 注意:protected不能修饰类
+        
+
+## 4_类及其组成与所使用的修饰符
+
+* 修饰符
+
+    * 权限修饰符: private   default   protected    public
+
+    * 状态修饰符: static    final
+
+    * 抽象修饰符: abstract
+
+* 类
+
+    * 权限修饰符: default    public
+
+    * 状态修饰符: final    
+
+    * 抽象修饰符: abstract
+
+* 成员变量
+
+    * 权限修饰符: private   default    protected    public
+
+    * 状态修饰符: static    final
+
+    * 抽象修饰符: 无
+
+    > 用的最多的是: private
+    
+* 构造方法
+
+    * 权限修饰符: private    default     protected    public 
+
+    * 状态修饰符: 无
+
+    * 抽象修饰符: 无
+    
+    > 用得最多的是: public
+    
+* 成员方法
+
+    * 权限修饰符: private    default     protected    public 
+
+    * 状态修饰符: static    final
+
+    * 抽象修饰符: abstract
+
+    > 用得最多的是: public 
+    
+* 常用的组合规则
+
+    * 成员变量: public static final  (接口中默认)
+
+    * 成员方法: 
+
+        * public static 
+
+        * public abstract      (接口中默认)
+
+        * public final
+
+## 5_内部类概述和访问特点
+
+* 什么是内部类
+
+内部类是类中类,举例说明
+
+```java
+class OuterClass{              //外部类
+    外部类成员变量
+    外部类成员方法
+    class InnerClass{          //内部类
+        内部类成员变量
+        内部类成员方法
+    }
+}
+```
+
+* 内部类的调用规则
+
+    * 外部类调用内部类,必须创建对象
+
+     `外部类.内部类 对象名=外部类对象.内部类对象`
+    
+     `OuterClass.InnerClass oi=new OuterClass().new InnerClass()`
+    
+    * 内部类调用外部类
+
+     内部类可以直接使用外部类的成员变量和成员方法,包括私有的
+     
+## 6_成员内部类被private解析
+
+* 如果成员内部类被私有类,则不能使用外部类调用内部类的规则进行调用,调用方法也很简单,私
+
+  有类只在本类中才有效,例如私有化的内部类只有在其所在的外部类中才有效,因此可以在外部
+  
+  类里再定义一个方法,在该方法内创建内部类对象,然后调用该方法即可
+  
+  ```java
+  class AnnoymousInnerClass{
+    public static void main(String[] args) {
+        OuterClass oc=new OuterClass();  //创建外部类对象   
+        oc.method();             //调用外部类方法
+    }
+}
+class OuterClass{                //外部类
+    private int num=10;          //私有成员变量
+    private class InnerClass{    //私有化内部类
+        public void show(){
+            System.out.println(num);
+        }
+    }
+    public void method(){       //在外部类里创建method方法
+        InnerClass ic=new InnerClass();  //创建内部类对象
+        ic.show();             //调用内部类方法
+    }
+}
+  ```
+  
+## 7_成员内部类被static解析
+
+* 静态成员内部类和普通内部类只是在外部类调用内部类的写法上有点差异
+
+    * 因为静态类可以通过类名.调用,所以有静态成员内部类时,其调用规则可写为
+
+    `外部类.内部类 对象名=外部类.内部类对象`
+    
+    `OuterClass.InnerClass oi=OuterClass.new InnerClass()`  
+    
+    new可以提前,或者写成
+    
+    `OuterClass.InnerClass oi=new OuterClass.InnerClass()`
+    
+## 8_局部内部类访问局部变量的问题
+
+* 先区分成员内部类和局部类部类
+
+    * 成员内部类
+
+    ```java
+    class OuterClass{
+        class InnerClass{       //局部内部类
+            ...
+        }
+    }
+    ```
+    
+    * 局部内部类
+
+    ```java
+    class OuterClass{        //外部类
+        public void method(){   //外部类的成员方法
+            final int NUM=10;   //外部类里的局部变量
+            class InnerClass{   //局部内部类
+                System.out.println(NUM);
+            } 
+        }
+    }
+    ```
+    
+    * 局部内部类访问局部变量(也是外部类里的局部变量)时,局部变量必须被final修饰,为了
+
+        防止外部类的成员方法弹栈造成局部内部类不能再调用局部变量
+        
+## 9_匿名内部类
+
+* 匿名内部类的用途
+
+    * 为了简化代码的书写,在子类只使用一次的时候适合使用
+
+* 匿名内部类的存在条件
+
+    * 存在一个类或者接口,这里的类可以是具体类也可以是抽象类
+
+    * 匿名内部类必须全部重写父类中的抽象方法
+    
+* 普通方法实现抽象类里抽象方法的步骤
+
+```java
+ public class Demo10{
+    public static void main(String[] args) {
+        Son s=new Son();          //调用子类对象
+        s.method();               //调用子类方法
+    }
+}
+
+abstract class Father{             //抽象父类
+    public abstract void method(); //抽象方法
+}
+
+class Son extends Father{          //类Son继承父类
+    public void method(){          //重写父类方法
+        System.out.println("method");  
+    }
+}
+
+```
+
+* 使用匿名内部类来实现抽象类里抽象方法的步骤
+
+```java
+public class Demo10{
+    public static void main(String[] args) {
+        new Father(){                   //实现Father接口
+            public void method(){       //重写抽象方法
+                System.out.println("Annoymous method");
+            }
+        }.method();
+        //也可以通过以下方式调用
+        /*
+        Father f=new Father(){                   //创建匿名内部类
+            public void method(){       //重写抽象方法
+                System.out.println("also Annoymous method");
+            }
+        };
+        f.method();
+        */
+    }
+}
+
+abstract class Father{             //抽象父类
+    public abstract void method(); //抽象方法
+}
+```
+
+## 10_总结
+
+![](https://i.loli.net/2019/01/10/5c370fc1bf586.png)
+
+
+    
+        
+
+    
