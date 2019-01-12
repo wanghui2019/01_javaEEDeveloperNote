@@ -1,0 +1,184 @@
+# 01_Day11_javaSE基础11
+
+[TOC]
+
+## 1_eclipse介绍
+
+* eclipse是开源软件,免费的,下载地址为
+
+  https://www.eclipse.org/downloads/packages/
+  
+  org是非盈利团体
+  
+* 安装eclipse
+
+    * macOS下安装
+
+      将下载好的.dmg的文件直接双击安装即可
+
+    * ubuntu下安装
+
+      ```bash
+      
+      ```
+
+    * Windows下安装
+
+      将下载后的.exe的文件直接双击安装
+      
+* eclipse下的目录解释
+
+    * src: 存放编写的源代码文件,就是.java文件
+
+    * bin: 存放二进制代码文件,即.class文件
+
+* eclipse的窗口介绍
+
+    * packageExplorer 显示项目结构,包,类,以及资源
+
+    * Outline  显示类的结构,方便查找,识别,修改
+
+    * Console  程序运行的结果在该窗口显示
+
+    * Hierarchy  显示java继承层次结构
+
+## 02_配置eclipse
+
+* 配置eclipse环境
+
+    * 程序的编译和运行的环境配置(一般不改)
+
+        * 查找方式: eclipse -- Preferences -- java
+
+        * 编译环境: Compiler(编译器) 默认选中的最高版本
+
+        * 运行环境: Installed JREs 默认会找到你安装的那个JDK
+
+        * 问题:
+
+            * 低编译,高运行.  可以
+
+            * 高编译,低运行.  不行
+
+            * 建议,编译和运行版本一致
+
+        * 去掉默认注释
+
+            * eclipse -- Preferences -- java -- Code Style -- Code Templates(模块)
+
+            * 选择不想要的内容,通过右边的Edit编译,只可以删除注释部分
+
+        * 行号的显示和隐藏
+
+            * 显示:在代码区域的最左边的空白区域,右键 -- Show Line Numbers即可
+
+            * 隐藏:重复上面操作
+
+        * 字体大小以及颜色配置
+
+            * 字体和颜色
+            
+            * eclipse -- Preferences -- General -- Appearance -- Color And Fonts -- java -- Java Edit Text Font
+
+            * 控制台
+
+            * eclipse -- Preferences -- General -- Appearance -- Color And Fonts -- Debug -- Console font
+
+            * 其它文件
+
+            * eclipse -- Preferences -- General -- Appearance -- Color And Fonts -- Basic -- Test font
+
+        * 窗体给弄乱了,如何恢复?
+
+            * Windows -- Perspective -- Reset perspective
+
+        * 控制台找不到了
+
+            * Windows -- show View -- console
+
+        * 取消悬浮提示
+
+            * eclipse -- Preferences -- Java -- Editor -- Hovers  右边将Combined Hover勾去掉
+
+## 03_Windows下的eclipse快捷键(后面是macOS下的普通键盘)
+
+* 内容辅助键
+
+    * Alt+/  起提示作用 (常用,可以补充接下来要输出的语句)
+
+    * main + alt + /,  syso + alt + /,给出其它提示
+
+    * 定义自己的alt + /
+
+        * eclipse -- Preferences -- java -- Editor -- Templates -- New
+
+* 常用快捷键
+
+    * 新建:ctrl+n                          windows+n
+
+    * 格式化:ctrl+shift+f                   windows+alt+f
+
+    * 导入包:ctrl+shift+o                    windows+alt+o
+
+    * 注释:ctrl+/   ctrl+shift+/    取消ctrl+shift+/        
+
+      windows+/    windows+alt+/   取消windows+alt+/
+
+    * 代码上下移动:选中代码alt+上/下箭头             选中代码alt+上/下箭头  
+
+    * 查看源码:选中类名(F3或者ctrl+鼠标单击)        windows+鼠标单击
+
+    * 查看具体的类:ctrl+shift+t               windows+alt+t
+
+    * 查看具体类的具体方法:ctrl+o               windows+o
+
+    * 给出建议:ctrl+1   根据右边生成左边的数据类型,生成方法      windows+1    
+
+    * 删除代码:ctrl+d                  windows+d
+
+    * 抽取方法:alt+shift+m             windows+alt+m
+
+    * 改名:alt+shift+r                windows+alt+r
+
+* 提高代码效率的快捷键
+
+    * alt+shift+s                    windows+alt+s
+
+## 04_eclipse如何生成jar包并导入到项目中
+
+* jar是什么
+
+    * jar是多个class文件的压缩包
+
+* jar有什么用
+
+    * 用别人写好的东西
+
+* 打jar包
+
+    * 选中项目 -- 右键 -- Export -- java -- Jar -- 自己指定一个路径和一个名称 -- Finish
+
+* 导入jar包
+
+    * 复制到项目路径下并添加至构建路径
+
+* 删除包
+
+    * 选中项目,右键选择delete
+
+* 导入包
+
+    * 右键 -- import -- General -- Existing Project into Workspace
+
+## 05_设置断点处理debug
+
+* 在代码左边双击即可设置断点,再双击即可取消断点
+
+* 设置断电后右键执行 -- debug as 即可以进行debug测试
+
+
+
+
+
+    
+    
