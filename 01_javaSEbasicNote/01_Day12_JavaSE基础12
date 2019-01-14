@@ -1,0 +1,352 @@
+# 01_Day12_javaSE基础12
+
+## 01_API概述
+
+* API(Application Programming Interface)
+
+    * 应用程序编程接口
+
+* java API
+
+    * 就是java提供给我们使用的类,这些类将底层的实现封装了起来,方便使用
+
+## 02_常见对象_Object类
+
+* 所有类的父类,老祖宗级别的类,所有类直接或者间接继承自该类
+
+* 构造方法:public object()
+
+    * 子类的构造方法默认访问的是父类的无参构造方法
+
+* object类的hashCode()方法
+
+    * 什么是哈希吗值,其与地址值有什么区别?
+
+        * 哈希吗值是有哈希算法得到的,可以理解为逻辑地址值,地址值是由物理层面决定的
+
+        * 区别???
+
+        * 什么适合的哈希吗值会相等???
+
+    * public int hashCode()
+
+        * 返回对象的哈希吗值,默认情况下,该方法会根据对象的地址来计算
+
+        * 不同对象的哈希吗值一般来说不会相同,但是,同一对象的哈希吗值肯定相同
+
+* object类中的getClass()类
+
+    * getClass()返回对象的运行时类
+
+    * 可以通过Class类中的getName方法,获得对象真实类的全名称
+
+    ```java
+    Persion p=new Persion();
+    Class c=p.getClass();        //得到Persion对象的字节码文件
+    System.out.println(c);
+    String s=c.getName();        //得到该字节码文件所对应的名称
+    System.out.println(s);
+    ```
+        
+* object类的toString()方法
+
+    * toString方法的写法
+
+    ```java
+    public String toString() {       //返回值类型为String类型
+    return (isInterface() ? "interface " : (isPrimitive() ? "" : "class "))
+        + getName();
+    }
+    ```
+        
+    * 相当于返回的是: getClass().getName(+"@"+Integer.toHexString(hashCode());这个值没什么意义,所以一般需要重写toString方法
+
+    * toString()方法存在的意义???
+
+        * 只是为了显示出数据看一眼
+
+* object中的equals()方法
+
+    * equals方法
+
+    ```java
+    public boolean equals(Object obj) {
+        return (this == obj);
+    }
+    boolean b=p1.equals(p2)    //p1,p2都指创建的类对象
+    /*
+    this指p1,obj指p2
+    Object obj=new Persion()向下转型,obj被转型为Persion对象
+    */
+    ```
+    
+    * equals比较的是地址值,无法属性值,所有必须重写equals方法
+
+        * 重写的方法里可以如此写
+
+        ```java
+        public boolean equals(Object obj) {
+            Persion p=Persion(obj);
+            return this.name.equals(p.name)&&this.age.equals(p.age);
+        }
+        ```
+        
+    * equals方法与==的区别
+
+        * ==即可以比较基本数据类型,又可以比较引用数据类型.比较基本数据类型比较的是值,比较引用数据类型比较的是地址值
+
+        * equals方法只能比较引用数据类型,该方法在没有重写前,比较的是地址值,但是比较地址值是没有意义的,所以需要重写equals方法比较属性值,
+
+* 类Scanner
+
+    * hasNextXXX()
+
+    * nextXXX()
+
+        * nextXXX()在先录入整数,再录入字符串时会出现错误
+
+        ```java
+        Scanner sc=new Scanner();
+        int a=sc.nextInt();           //假如在此处录入的是整数10,但是键盘上默认录入的是10 /r/n. nextInt()只获取10就结束了
+        System.out.println(a);      
+        String b=sc.nextLine();      //字符串录入结束的判断标志是/r/n,当其获取到录入整型时的/r/n时,就会退出录入
+        System.out.println(b);
+        ```
+        
+        * 解决方案:
+
+            * 1.在录入完整数后再创建一次键盘录入对象
+
+            * 2.先全部按字符串录入,再转换为其它类型
+    
+## 03_String的常见构造方法
+
+* public String(); 空构造
+
+* public String(byte[] bytes); 把字节数组转换为字符串
+
+```java
+byte[] arr0= {'a','b','c','d','e'};
+String s0=new String(arr0);        //String(byte[] bytes)
+System.out.println(s0);
+```
+
+* public String(byte[] bytes,int index,int length); 把字节数组的一部分转换为字符串
+
+```java
+String s1=new String(arr0, 1, 3);  //String(byte[] bytes, int offset, int length)
+System.out.println(s1);
+```
+
+* public String(char[] value);把字符串数组转换为字符串
+
+```java
+char[] arr1= {97,98,99,100,101};
+String s2=new String(arr1);        //String(char[] value)
+```
+
+* public String(char[] value,int index,int count); 把字节数组的一部分转成字符串
+
+```java
+String s3=new String(arr1, 1, 3);  //String(char[] value, int offset, int count)
+System.out.println(s3);
+```
+
+* public String(String original); 把字符串常量值转成字符串
+
+```java
+String s4=new String("helloworld");   //只是创建一个副本出来
+System.out.println(s4);
+```
+
+## 04_String类的判断功能
+
+* boolean equals(object obj);比较字符串的内容是否相同,区分大小写
+
+```java
+String judge1="abc";
+String judge2="ab"+"c";
+System.out.println("equals:"+judge1.equals(judge2));
+```
+
+* boolean equalsIgnoreCase(String anotherString);比较字符串的内容是否相同,不区分大小写
+
+```java
+String judge3="ABC";	System.out.println("equalsIgnoreCase:"+judge1.equalsIgnoreCase(judge3));
+```
+
+* boolean contains(String str);判断大字符串中是否包含小字符串
+
+```java
+String judge4="a";
+System.out.println("Contains:"+judge1.contains(judge4));
+```
+
+* boolean startWith(String str);判断字符串是否以某个指定的字符串开头
+
+```java
+System.out.println("startWith:"+judge1.startsWith("a"));
+```
+
+* boolean endsWith(String str);判断字符串是否以某个指定的字符串结尾
+
+```java
+System.out.println("endWith:"+judge1.endsWith("c"));
+```
+
+* boolean isEmpty();判断字符串是否为空
+
+```java
+System.out.println("isEmpty:"+judge1.isEmpty());
+```
+
+## 05_String的获取功能
+
+* int length();获取字符串的长度
+
+```java
+String getfeatures="abcdefbcdb";
+System.out.println(getfeatures.length());
+```
+
+* char chatAt(int index);获取指定索引位置的字符
+
+```java
+System.out.println(getfeatures.charAt(1));
+```
+
+* int indexOf(int ch);返回指定字符在此字符串中第一次出现处的索引
+
+```java
+System.out.println(getfeatures.indexOf("b"));
+```
+
+
+* int indexOf(string str);返回指定字符串在此字符串中第一次出现处的索引
+
+```java
+System.out.println(getfeatures.indexOf("bc"));
+```
+
+
+* int indexOf(int ch,int fromIndex);返回指定字符在此字符串中从指定位置后第一次出现处的索引
+
+```java
+System.out.println(getfeatures.indexOf("b", 3));
+```
+
+
+* int indexOf(string str,int fromIndex);返回指定字符串在此字符串中从指定位置后第一次出现处的索引
+
+```java
+System.out.println(getfeatures.indexOf("bc", 3));
+```
+
+
+* lastIndexOf
+
+```java
+System.out.println(getfeatures.lastIndexOf("bc")); 
+```
+
+
+* String substring(int start);从指定位置开始截取字符串,默认到末尾
+
+```java
+System.out.println(getfeatures.substring(2)); 
+```
+
+
+* String substring(int start,int end);从指定位置开始到指定位置结束截取字符串
+
+```java
+System.out.println(getfeatures.substring(2, 7));
+```
+
+## 06_String的转换
+
+* byte[] getBytes();把字符串换为字节数组
+
+```java
+String change1="abcdef";
+byte[] changearr1=change1.getBytes();             //将字符串转换为字节数组
+for (int i = 0; i < changearr1.length; i++) {
+		System.out.println(changearr1[i]);
+}
+```
+
+* char[] toCharArray();把字符串换为字符数组
+
+```java
+char[] changearr2=change1.toCharArray();          //将字符串转换为字符数组
+for (int i = 0; i < changearr2.length; i++) {
+		System.out.println(changearr2[i]);
+}
+```
+
+
+* static String valueOf(char[] chs);把字符数组转成字符串
+
+```java
+String change3=String.valueOf(changearr2);
+```
+
+
+* static String valueOf(int i);把int类型的数据转成字符串
+
+```java
+int change5=100;
+System.out.println(String.valueOf(change5));
+```
+
+
+* String toLowerCase();把字符串转为小写
+
+* String toUpperCase();把字符串转成小写
+
+* String concat(String str);把字符串拼接
+
+## 07_String的替换功能以及其它
+
+* String repalce(char old,char new)
+
+```java
+String other1="affgfhdfgfjk";
+String other2="abc";
+String otherstring1=other1.replace("f", "a");
+```
+
+* String replace(String old,String new)
+
+```java
+String otherstring3=other1.replace("fg", "ab");
+```
+
+
+* String去除首位空格
+
+```java
+String trim="  asf   ffg   ";
+String trim1=trim.trim();           //去除收不和尾部空格
+System.out.println(trim1);
+```
+
+
+* String的按字典顺序比较两个字符串
+
+    * int compareTo(String str)
+        
+    ```java
+    String compare1="ba";
+	  String compare2="bb";
+	  int num=compare1.compareTo(compare2);    //按字典排序进行比较
+	  System.out.println(num);
+    ```
+    
+## 08_总结
+
+![](https://i.loli.net/2019/01/14/5c3c7b781a44f.png)
+
+
+
+    
