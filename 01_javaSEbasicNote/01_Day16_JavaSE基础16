@@ -1,0 +1,221 @@
+# 01_Day16_JavaSE基础16
+
+[TOC]
+
+## 01_LinkedList类的功能
+
+* public void addFirst(E e)及addLast(E e);从头添加及从尾添加
+
+  ```java
+  LinkedList list=new LinkedList();
+  list.addFirst("a");
+  list.addFirst("b");
+  list.addLast("c");
+  list.addLast("d");
+  ```
+  
+* public E getFirst()及getLast();得到集合的头元素及尾元素
+
+  ```java
+  System.out.println(list.getFirst());
+  System.out.println(list.getLast());
+  ```
+  
+* public E removeFirst()及public E removeLast();
+  
+  ```java
+  System.out.println(list.removeFirst());
+  System.out.println(list.removeLast());
+  ```
+  
+* public E get(int index);
+
+  ```java
+  System.out.println(list.get(1));
+  ```
+  
+## 02_泛型的概述
+
+* 作用
+
+    * 提高安全性
+
+    * 省去强转的麻烦
+
+* 基本使用
+
+    * <>里必须放引用数据类型
+
+      ```java
+      ArrayList<String> list=new ArrayList<String>();  //前后泛型类型必须相同
+      ArrayList<String> list=new ArrayList<>();    //1.7后的新特性,后面的泛型可以不写
+      ```
+      
+## 03_泛型的实用情况
+
+* 泛型类:把泛型定义类上
+
+    * 定义格式: public class 类名<泛型类型>。 该泛型类型可以使用未知数Q等字母代替,但一旦该方法被具有明确的泛型类型定义,泛型类型也转变为了明确类型
+
+      ```java
+      public class Demo_Test16 {
+	   public static void main(String[] args) {
+		    Student<String> s=new Student<>();    //创建<String>泛型的Student对象
+		    String str=s.method("string");        //调用method方法
+		    System.out.println(str);
+	        }
+}
+	class Student<Q>{                         //泛型类型为Q
+		public Q method(Q q) {                
+			return q;
+		    }
+}
+      ```
+      
+* 非静态泛型方法:把泛型定义在方法上
+
+    * 定义格式: public<泛型类型> 返回类型 方法名(泛型类型 变量名)
+      
+      ```java
+      class Student<Q>{                         //泛型类型为Q
+		public Q method(Q q) {                
+			return q;
+		}
+		public<T> T show(T t) {               //此种方法可以不被泛型类左右
+			return t;
+		}
+      ```
+      
+* 静态泛型方法:把泛型定义在方法上
+
+    * 定义格式: public static<泛型类型> 返回类型 方法名(泛型类型 变量名)
+
+      ```java
+      class Student<Q>{                         //泛型类型为Q
+		public Q method(Q q) {                
+			return q;
+		}
+		public static<Q> Q show(Q q) {        //静态先于类创建,这里的Q和Student类中的Q不是一个Q
+			return q;
+		}
+      ```
+      
+* 泛型接口
+
+    * 定义格式: interface inter<泛型类型>
+
+    * 子类实现泛型接口的两种形式
+
+        * class Demo implements inter<泛型类型>.常用这种方法
+
+        * class Demo<泛型类型> implements inter<泛型类型>
+
+* 泛型高级之通配符
+
+    * 泛型通配符<?>,指的是任意类型,如果没有明确,就是值Object以及任意的java类
+
+    * ? extend E
+
+        * 意思是E是个父类,他有很多子类,例如:E为Persion类,他有很多儿子类,儿子1为Student类,儿子2为Worker类,儿子3为Teacher类.在addAll(? extends E)方法中,将Student类中的集合对象添加到Persion类的集合对象中,可以如下所写
+
+          ```java
+          ArrayList<Persion> p=new ArrayList<>();   //泛型为Persion类的对象
+          p.add(new Persion("张三",23));
+          p.add(new Persion("李四",24));
+          ArrayList<Student> s=new ArrayList<>();   //泛型为Student类的对象
+          p.add(new Persion("王五",25));
+          p.add(new Persion("赵六",26));
+          p.addAll(s);  //addAll(? extends E)只随意使用? extends E是因为儿子太多,不知道添加哪个,只有明确后才能知道
+          ```
+          
+    * ? super E
+
+## 04_增强for循环
+
+* 目的:简化数组和Collection集合的遍历
+
+* 格式:
+  
+  ```test
+  for(元素数据类型 变量: 数组或者Collection集合){
+      使用变量集合.注意:这里的变量就是元素  
+  }
+  ```
+  
+* 增强for循环底层依赖的是迭代器
+  
+## 05_三种迭代能否删除集合元素
+
+* for循环,可以删除,但索引要--
+
+* 图形分析如下:
+
+![](https://i.loli.net/2019/01/17/5c4058f321983.png)
+
+  ```java
+  /*for循环过程中删除集合元素[a,b,b,c,d,e]中的b元素*/
+  import java.util.ArrayList;
+  public class Demo_Test16 {
+	public static void main(String[] args) {
+		ArrayList<String> list=new ArrayList<String>();
+		list.add("a");
+		list.add("b");
+		list.add("b");
+		list.add("c");
+		list.add("d");
+		for (int i = 0; i < list.size(); i++) {
+			if ("b".equals(list.get(i))) {   //判断b是否在list集合中出现
+				list.remove(i--);            //此处索引要用i--,让索引前移
+			}
+		}	
+		System.out.println(list);
+	}
+}
+  ```
+  
+* 迭代器删除,不能使用list.remove("b")的方法删除,只能使用it.remove("b")来删除,否则会出现异常
+
+* 增强for循环底层是借助于迭代实现的,删除时只能借助list.remove("b"),但这种删除方法在迭代中是异常的,所以增强for循环不能删除
+
+## 06_可变参数(没搞懂)
+
+* 使用场所:定义方法时不知道该定义几个参数
+
+* 格式: 
+
+    * 修饰符 返回值类型 方法名(数据类型...变量)
+
+    * 这里的变量其实是一个数组
+
+    > 注意:如果一个方法有多个参数,这些参数里有可变参数,可变参数一定放在最后一个
+    
+      ```java
+      public static void show(int x,int y,int...arr){}
+      ```
+      
+  ```java
+  public class Demo_Test16 {
+	public static void main(String[] args) {
+		show(11,22,33,44);     //传几个参数就使用几个参数
+	}
+	public static void show(int x,int y,int...arr) {        //可变数组
+		for (int i = 0; i < arr.length; i++) {  //遍历
+			System.out.println(arr[i]);
+		}
+	}
+}
+  ```
+  
+## 07_集合与数组之间的相互转换
+
+* 数组转集合
+
+    * 可以使用Arrays类里的asList()方法,转换后的集合不能添加元素,但能使用集合的一些其它特性
+
+* 集合转数组
+
+    * 使用Collection里的toArray()方法
+
+## 08_总结
+
+![](https://i.loli.net/2019/01/17/5c406f2159e84.png)
