@@ -1,0 +1,209 @@
+# 01_Day15_JavaSE基础15
+
+[TOC]
+
+## 01_集合框架
+
+* 为什么有集合?
+
+  数组长度是固定的,不能扩展,为了扩展引用数据类型的存储,有了集合
+  
+* 集合和数组的区别
+
+    * 数组可以存储基本数据类型和引用数据类型,集合只能存储引用数据类型(对象)
+
+    * 数组一旦创建就不能扩展,但集合可以扩展
+
+* 集合继承体系图
+
+  ![](https://i.loli.net/2019/01/16/5c3f135917c8e.png)
+  
+## 02_Collection集合的基本功能
+
+* boolean add(E e);添加
+
+  ```java
+  c.add("abc");
+	c.add(10);
+	c.add("%");
+  ```
+  
+* boolean remove(Object o);删除
+
+  ```java
+  c.remove("%");
+  ```
+  
+* void clear();清空
+
+  ```java
+  c.clear();
+  ```
+  
+* boolean contains(Object o);判断是否包含
+
+  ```java
+  System.out.println(c.contains("abc"));
+  ```
+  
+* boolean isEmpty();判断是否为空
+
+  ```java
+  System.out.println(c.isEmpty());
+  ```
+  
+* int size();集合里所包含的元素个数
+
+  ```java
+  System.out.println(c.size());
+  ```
+  
+* 集合的遍历
+
+    * 可以先通过toArray()方法将其转换为数组,再对数组进行遍历
+
+    * 在对引用数据类型遍历时,注意向下转型
+    
+## 03_collection带All的功能
+
+ * boolean addAll(Collection c);加集合中的每一个元素都添加带另一个集合里,和add区分一下
+
+   ```java
+     Collection c1=new ArrayList();   //父类引用指向之类对象
+		c1.add("a");                     //将元素添加到c1对象中
+		c1.add("b");
+		c1.add("c");
+		c1.add("d");
+		@SuppressWarnings("rawtypes")
+		Collection c2=new ArrayList();   //父类引用指向之类对象
+		c2.add("a");                     //将元素添加到c2对象中
+		c2.add("b");
+		c2.add("c");
+		System.out.println(c1.addAll(c2));  //把c2的每个元素都添加到c1里
+		System.out.println(c1);
+		System.out.println(c1.add(c2));     //把c2当作一个对象添加到c1里
+		System.out.println(c1);
+   ```
+
+ * boolean removeAll(Collection c);删除的是交集
+
+   ```java
+    System.out.println(c1.removeAll(c2)); //删除交集,c1-c1交c2
+	 System.out.println(c1);
+   ```
+   
+ * boolean containsAll(Collection c);判断是否包含
+
+   ```java
+   System.out.println(c1.containsAll(c2));   //判断c1是否包含c2
+   ```
+
+ * boolean retainAll(Collection c);取交集,如果调用的集合改变就返回true,如果不改变就返回false
+
+  ```java
+   System.out.println(c1.retainAll(c2)); //取c1与c2的交集,然后判断改交集和c1是否一样,如果一样返回false,如果不一样,返回true
+	System.out.println(c1);
+  ```
+  
+## 04_集合元素的迭代(遍历)
+
+* 区别于先使用toArray()将其转换为数组,再遍历的方法,迭代是直接遍历集合元素
+
+* 迭代过程:
+
+    * 1.获取迭代器:Iterator it=c.iterator();
+
+    * 2.判断是否有迭代元素:it.hasNext();
+
+    * 3.将迭代结果取出:it.next();
+
+      ```java
+      Iterator it=c1.iterator();       //获取迭代器
+		 while (it.hasNext()) {          //判断是否有可迭代元素
+		System.out.println(it.next());   //将迭代结果输出
+		System.out.println(((Persion)it.next()).getName());//向下转型获取姓名
+      ```
+      
+## 05_List集合特性介绍
+
+* 相比与Collection,器特有的一些方法
+
+    * void add(int index,E element);在指定索引位置添加某个元素
+
+      ```java
+      List list=new ArrayList();
+      list.add("a")
+      list.add("b")
+      list.add(2, "c");   //在索引2的位置添加c,最大索引到index,超过了就报索引越界异常
+      System.out.println(list);
+      ```
+
+    * E remove(int index);删除指定索引得元素,返回的是被删除的元素
+
+      ```java
+      Object o=list.remove(0);  //根据指定索引删除集合元素
+		System.out.println(o);     //o为被删除集合元素
+		System.out.println(list);   
+      ```
+      
+    * E get(int index);根据索引获取元素
+
+      ```java
+      Object o=list.get(1);    
+      ```
+      
+    * E set(int index,E element);将指定位置的元素修改
+
+      ```java
+      Object o=list.set(0, "e");  //将索引为0处的元素修改为e
+		System.out.println(o);       //o指修改前的元素
+		System.out.println(list);    //修改后的集合
+      ```
+      
+## 06_Vector类(基本已经被ArrayList替代)
+
+* void addElement(E obj)添加功能
+
+* Vector实现遍历的方法
+
+  ```java
+  Vector v=new Vector();                  //创建Vector对象
+	v.addElement("a");                      //添加元素
+	v.addElement("b");
+	v.addElement("c");
+	v.addElement("d");
+	Enumeration en=v.elements();             //获取枚举
+	while (en.hasMoreElements()) {           //判断是否有元素
+		System.out.println(en.nextElement());//获取元素
+	}
+  ```
+  
+## 07_数据结构之数组与链表
+
+* 数组:查询块,增删慢
+
+* 链表:查询慢,增删块
+
+![](https://i.loli.net/2019/01/17/5c400f4929374.png)
+
+## 08_List的3个子类的特点
+
+* ArrayList,LinkedList,Vector
+
+    * ArrayList与Vector
+
+        * 共同点:底层都是数组实现的
+
+        * 不同点:ArrayList是线程不安全的,Vector是线程安全的
+
+    * ArrayList与LinkedList
+
+        * 共同点:都是线程不安全的
+
+        * 不同点:ArrayList底层是数组实现的,LinkedList底层是链表实现的
+
+    * 数组实现的查询块,增删慢.链表实现的查询慢,增删块
+
+
+
+      
