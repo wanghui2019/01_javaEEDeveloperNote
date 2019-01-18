@@ -1,0 +1,128 @@
+# 01_Day17_JavaSE基础17
+
+[TOC]
+
+## 01_Set概述
+
+* Set里的方法和List里的方法一样,Set是存取不一致,不能存重复元素,无索引
+
+* Set的子类方法HashSet,存储重复元素时的代码
+
+ ```java
+ HashSet<String> set=new HashSet<String>();   //创建HashSet集合对象
+ boolean b1=set.add("a");                     //添加元素"a"
+ boolean b2=set.add("a");                     //再次添加元素"a"
+ System.out.println(b1);                      //第一次添加的为true
+ System.out.println(b2);                      //第二次添加的为false
+ System.out.println(set);                     //不能存储重复元素
+ ```
+ 
+## 02_HashSet去除重复对象的原理
+
+* HashSet想要去除重复对象,必须重写equals方法和hashCode方法
+
+  ```test
+  1.因为HashSet底层时由哈希算法实现的,所以HashSet在输出对象值时会先比较对象的哈希值
+  2.对象的哈希值是由哈希算法算出来的,假如对于以下对象,其算出的哈希值如下:
+   HashSet<Persion> ha=new HashSet<>();   //创建HashSet集合对象
+	   ha.add(new Persion("张三",23));      //假设哈希值为15
+		ha.add(new Persion("张三",23));      //假设哈希值为16
+		ha.add(new Persion("李四",24));      //假设哈希值为17
+		ha.add(new Persion("李四",24));      //假设哈希值为18
+		ha.add(new Persion("李四",24));      //假设哈希值为19
+	3.如果只重写了equals方法,在对哈希值进行比较时,因为哈希值的不同,不会被认为是同一个对象,因此无法去除重复对象
+	4.因此只重写equals方法是不行的,必须重写HashCode方法,重写如下:
+	public int hashCode() {
+		final int prime = 31;
+		return 10;                          //此处可以写任何数值
+	}
+	  返回10的目的是为了给所有的对象都定义一个相同的HashCode值,当值一样时,开始比较
+	5.比较过程为:
+	   1)先接受到第一个new Persion("张三",23),然后第二个new Persion("张三",23)过来后比较对象,发现一样,比较HashCode值,发现又一样,认为这是同一个对象,于是只保留一个
+	   2)然后第一个new Persion("李四",24)过来后先比较值,发现和第一个new Persion("张三",23)不一样,于是保留,挂在new Persion("张三",23)下
+	   3)然后第二个new Persion("李四",24)过来后,比较挂在new Persion("张三",23)下的new Persion("李四",24),发现一样,在比较哈希值,也一样,保留一个
+	   4)后面比较同理
+	6.比较结束
+  ```
+  
+> 但是为了减少比较次数,提高效率,使new Persion("张三",23)对象只与new Persion("张三",23)比,new Persion("李四",24)只与new Persion("李四",24)比,于是返回值就不能写相同的值了.现在写为(直接生成就行了):
+
+  ```java
+  public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + age;
+	result = prime * result + ((name == null) ? 0 : name.hashCode());
+	return result;
+	}
+  ```
+  
+## 03_LinkedHashSet
+
+* LinkedHashSet是HashSet的子类
+
+    * 能保证存取一致,因为底层是链表实现的,是Set集合中唯一一个具有存取一致的类
+
+    * 因为其是HashSet的子类,所以不能存重复元素
+
+     ```java
+     LinkedHashSet<String> lhs=new LinkedHashSet<String>();
+	  lhs.add("a");
+	  lhs.add("a");
+	  lhs.add("b");
+	  lhs.add("b");
+	  lhs.add("c");
+	  lhs.add("d");
+	  System.out.println(lhs);
+     ```
+     
+## 04_TreeSet
+
+* TreeSet集合是对元素进行排序的,也是可以保证元素的唯一性
+
+* TreeSet集合对元素进行排序时,必须遵循一些排序规则,因此要实现Comparable类,并重写Compare类中的CompareTo方法
+
+    * 如果返回值为0,只存储一个元素
+    
+    * 如果返回值为正数,正序存储,怎么存怎么取
+
+    * 如果返回值为负数,倒序存储,存取顺序相反
+
+      ```java
+      public int compareTo(Object o) {
+    		return 1;
+    	}
+      ```
+      
+* TreeSet比较原理图
+
+![](https://i.loli.net/2019/01/18/5c416b572485b.png)
+
+* TreeSet排序使用方式
+
+    * 自然排序
+
+        * TreeSet类的add()方法中会把存入的对象提升为Comparable类型
+
+        * 调用对象的compareTo()方法和集合中的对象比较
+
+        * 根据compareTo()方法返回的结果进行存储
+
+    * 比较器排序
+
+        * 创建TreeSet的时候可以定制一个Comparator
+
+        * 如果传入了Comparator的子类对象,那么TreeSet就会按照比较器的顺序排序
+
+        * add()方法内部会自动调用Comparator接口中compare()方法排序
+
+    * 两种方法的区别
+
+        * TreeSet构造方法什么都不传,默认按照类中Comparable的顺序(没有就报错ClassCastExceoption)
+
+        * TreeSet如果传入Comparator,就优先按照Comparator
+
+
+
+
+  
