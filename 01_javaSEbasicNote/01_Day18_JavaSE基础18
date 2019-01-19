@@ -1,0 +1,215 @@
+# 01_Day18_JavaSE基础18
+
+## 01_Map概述
+
+* Map是一个接口,其是双列集合,Map和Set非常相似,其实Set底层依赖的就是Map,只不过把Value的值给隐藏了.
+
+* HashSet和HashMap底层依赖的都是哈希算法
+
+* Map集合的功能概述
+
+    * 添加功能
+
+        * put(K key,V value)
+
+          如果键是第一次存储,就直接存储元素,返回null
+          
+          如果不是第一次存储,就把前一次的值覆盖掉,返回被覆盖掉的值
+          
+          ```java
+            Integer i1=m.put("a", 1);       //第一次存储,返回null
+		      Integer i2=m.put("b", 5);       //第一次存储,返回null
+		      Integer i3=m.put("b", 3);       //不是第一次存储,覆盖掉前一次的值,返回被覆盖的5
+		      Integer i4=m.put("b", 4);       //不是第一次存储,覆盖掉前一次的值,返回被覆盖的3
+		      System.out.println(i1);
+		      System.out.println(i2);
+		      System.out.println(i3);
+		      System.out.println(i4);
+		      System.out.println(m);
+          ```
+          
+    * 删除功能
+
+        * void clear():删除所有的键值对元素
+
+          ```java
+          m.clear();                //清空
+          System.out.println(m);
+          ```
+
+        * V remove(Object key):根据键删除键值对元素,并把值返回
+
+          ```java
+          Integer i=m.remove("a");    //根据键删除值,并返回值
+		     System.out.println(i); 
+		     System.out.println(m); 
+          ```
+          
+    * 判断功能
+
+        * boolean containsKey(Object Key):判断集合是否包含指定的键
+
+        * boolean containsValue(Object Value):判断集合是否包含指定的值
+
+        * boolean isEmpty():判断集合是否为空
+
+    * 获取功能
+
+        * Set<Map.Entry<K,V>> entrySet():获取键值对对象,把键值看作一个整体
+
+            * Map.Entry<K.V>是一个接口,其实是Entry是Map的一个内部接口.该接口相当于把键值对封装为一个对象,Map.Entry<K.V>接口中有getKey()和getValue()方法,可以进行键值对的遍历.
+
+              ```java
+              Set<Map.Entry<String, Integer>>            key_value=m.entrySet();      //获取键值对对象
+		Iterator<Map.Entry<String, Integer>> it=key_value.iterator();  //获取迭代器
+		while(it.hasNext()) {                          //判断是否有元素
+			Map.Entry<String, Integer> en=it.next();   //将Map.Entey对象遍历出来
+			String key=en.getKey();                    //获取键
+			Integer value=en.getValue();               //获取值
+			System.out.println(key+"="+value);
+		}
+            ```
+            
+            ```java
+            //增强for循环遍历
+            for (Map.Entry<String, Integer> key_value : m.entrySet()) {
+			System.out.println(key_value.getKey()+"="+key_value.getValue());
+		}
+            ```
+
+        * V get(Object key):根据键获取值
+
+          ```java
+          Integer ii=m.get("a");    //根据键获取值
+          System.out.println(ii);
+          ```
+
+        * Set<K> KeySet():获取集合中所有键的集合
+
+          ```java
+          Set<String> s=m.keySet();  //返回集合中所有键的集合
+		     System.out.println(s);
+          ```
+
+        * Collection<V> values():获取集合中所有值的集合
+
+          ```java
+          Collection<Integer> c=m.values();   //获取集合中所有的值
+          System.out.println(c);
+          ```
+
+    * 长度功能
+
+        * int size():返回集合中的键值对的个数.一对键值对为一个
+
+## 02_LinkedHashMap概述
+
+* LinkedHashMap底层依赖链表,所以怎么存就怎么取,又因为是HashMap的子类,所以是双列集合,底层也是哈希算法,如果要去除重复元素,需要重写HashCode和equals方法
+
+## 03_TreeMap概述
+
+* TreeMap用于排序
+
+```test
+排序写法与TreeSet一样
+第一种:Student对象实现Comparable接口,然后重写compareTo方法
+第二种:创建TreeMap对象时直接参数里引用Comparator的匿名内部类,在内部类里重写compareTo方法
+```
+
+## 04_HashMap与Hashtable的区别
+
+* HashMap是JDK1.2版本出现的,Hashtable是JDK1.1版本出现的,这个时候命名还不规范
+
+* 共同点:
+
+    * 底层都是哈希算法实现的
+
+* 不同点
+
+    * HashMap是线程不安全的,效率高,Hashtable是线程安全的,效率低
+
+    * HashMap键值能存储null,Hashtable键值都不能存储null
+
+## 05_Collections集合中的一些常见方法
+
+* public static <T> void sort(List<T> list);排序
+
+ ```java
+ ArrayList<String> list=new ArrayList<String>();
+ list.add("a");
+ list.add("b");
+ list.add("a");
+ list.add("c");
+ list.add("d");
+ Collections.sort(list);
+ System.out.println(list);
+ ```
+
+* public static <T> int binarySearch(List<?> list,T key);二分查找
+
+  ```java
+  int i=Collections.binarySearch(list,"c");
+  System.out.println(i);
+  ```
+
+* public static <T> T max(Collection<?> coll);找最大值
+
+  ```java
+  String s=Collections.max(list);
+  System.out.println(s);
+  ```
+
+* public static void reverse(List<?> list);反转
+
+  ```java
+  Collections.reverse(list);
+  System.out.println(list);
+  ```
+
+* public static void shuffle(List<?> list);随机生成一个序列
+
+  ```java
+  Collections.shuffle(list);      //这可以用来模拟洗牌
+  System.out.println(list);
+  ```
+  
+## 06_泛型固定下边界
+
+* <? extend E>  与 <? super E> 的区别
+
+    * <? extend E>,出现在addAll()方法里
+
+        * 意思是E是个父类,他有很多子类,例如:E为Persion类,他有很多儿子类,儿子1为Student类,儿子2为Worker类,儿子3为Teacher类.在addAll(? extends E)方法中,将Student类中的集合对象添加到Persion类的集合对象中,可以如下所写
+
+          ```java
+          ArrayList<Persion> p=new ArrayList<>();   //泛型为Persion类的对象
+          p.add(new Persion("张三",23));
+          p.add(new Persion("李四",24));
+          ArrayList<Student> s=new ArrayList<>();   //泛型为Student类的对象
+          p.add(new Persion("王五",25));
+          p.add(new Persion("赵六",26));
+          p.addAll(s);  //addAll(? extends E)只所以使用? extends E是因为儿子太多,不知道添加哪个,只有明确后才能知道
+          ```
+          
+    * <? super E>,出现在比较器Comparator里
+
+        * 首先创建一个比较器,这个比较器由一个子类继承并重写了compareTo方法,然后在TreeSet集合或者TreeMap集合中作为参数传入,然后E是Persion类,在比较器里比较的是Persion对象,因为Student类继承Persion类,所以也能使用比较器进行比较
+
+          ```java
+          TreeSet<Persion> p=new TreeSet<>(new SonCompare());     //泛型为Persion类的对象
+          p.add(new Persion("张三",23));
+          p.add(new Persion("李四",24));
+          TreeSet<Student> s=new TreeSet<>(new SonCompare());
+          p.add(new Persion("王五",25));
+          p.add(new Persion("赵六",26));
+          class SonCompare implements Comparator{     //比较器
+               public int compareTo(Persion p1,Persion p2){    //拿Persion类进行比较
+                    int num=p1.getName().compareTo(p2.getName());
+                    return num==0 ? p1.age()-p2.age() : num;
+               }
+          }
+          ```
+          
+## 07_总结
+
+![](https://i.loli.net/2019/01/19/5c43092c4c06d.png)
