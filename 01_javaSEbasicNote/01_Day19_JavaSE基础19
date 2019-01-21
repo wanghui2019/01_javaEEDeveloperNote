@@ -1,0 +1,339 @@
+# 01_Day19_JavaSE基础19
+
+[TOC]
+
+## 01_异常的概述与分类
+
+* 异常分为运行时异常和编译时异常
+
+    * 运行时异常是程序员犯错误造成的,指运行时产生的异常,异常类型是在Throwable --> Exception --> RuntimeException
+
+    * 编译时异常是指在编译时产生的异常,如果不处理,编译时不会通过,这种异常不是一定会产生错误,但因为系统判定其可能产生异常,需要处理一下
+
+## 02_异常处理的两种方式
+
+* 第一种:try...catch...finally
+
+    * try:用来检查异常
+
+    * catch:用来捕获异常
+
+    * finally:释放资源
+
+        * finally:一定会执行,除非在finally之前(必须在之前)调用了System.exit(0)退出了JVM
+
+        * 作用:因为finally里的语句一定会执行,所以可以在里面写释放资源的语句
+
+    * try catch
+
+      ```java
+      int a=10,b=0;
+      try{                           //用来检查异常
+            int c=a/b;
+            System.out.println(c);
+      }catch(ArithmeticException i){   //用来捕获异常,并指明异常类型
+            System.out.println("出错了,除数不能为0");
+      }
+      ```
+    
+    > 注意:try后面如果跟多个catch,那么小的异常放前面,大的异常放后面,根据多态的原理.如果大的放前面,就会将所有的子类对象接收,后面的catch就没有意义了.
+
+    * try catch finally
+
+    * try finally
+
+* 第二种:throws
+
+    * throws和throw的区别
+
+        * throws和throw都表示抛出异常
+
+        * throws:跟在方法声明后,跟的是异常类名,可跟多个异常类名,用逗号隔开,由该方法的调用者来处理
+
+        * throw:用在方法体内,跟的是异常对象名,只能抛出一个异常对象名,由方法体内的语句处理
+
+          ```java
+          public static void main(String[] args) throws Exception {   //因为有异常,所以此处也要抛出异常
+                  String s="abc";
+    		      if (s.contains("a")) {
+    			  System.out.println("字符串s包含字符a");
+    		      }else {
+    			     throw new Exception();     //抛出异常
+    		      }
+    		  }
+          ```
+
+## 03_Throwable的几个常见方法
+
+* getMessage(): 获取异常信息,返回字符串
+
+  ```java
+      int a=10,b=0;
+      try{                           //用来检查异常
+            int c=a/b;
+            System.out.println(c);
+      }catch(Exception e){   //用来捕获异常,并指明异常类型
+      //Exception e=new ArithmeticException();
+            System.out.println(e.getMessage());    //异常信息
+      }
+  ```
+
+* toString(): 获取异常类名和异常信息,返回字符串
+
+  ```java
+      int a=10,b=0;
+      try{                           //用来检查异常
+            int c=a/b;
+            System.out.println(c);
+      }catch(Exception e){   //用来捕获异常,并指明异常类型
+      //Exception e=new ArithmeticException();
+            System.out.println(e.toString());    //异常类名+异常信息
+      }
+  ```
+
+* printStackTrace(): 获取异常类名和异常信息,以及异常出现在程序中的位置,返回void
+
+  ```java
+      int a=10,b=0;
+      try{                           //用来检查异常
+            int c=a/b;
+            System.out.println(c);
+      }catch(Exception e){   //用来捕获异常,并指明异常类型
+      //Exception e=new ArithmeticException();
+            e.PrintStackTrace();               //异常类名+异常信息+异常出现位置,这也是JVM默认使用的处理异常的方式
+      }
+  ```
+  
+## 04_小小面试题
+
+* final,finally与funalize的区别
+
+    * 三则没有一点的联系
+
+    * final:权限修饰符
+
+        * 修饰类,类不能被继承
+
+        * 修饰方法,方法不能被重写
+
+        * 修饰变量,变量变常量
+
+    * finally:是try语句的一个语句体,不能单独使用,用来释放资源
+
+    * finalize:是一个方法,用于自动调用垃圾回收器
+
+* catch里有return语句时,finally里的语句还会执行吗?在return前还是return后执行
+
+  答:会执行,catch里的return语句相当于先封装在一个箱子里,但是不执行,然后去看看有没有finally语句,如果有,就先把finally里的语句执行了,然后才去执行return语句.
+  
+## 05_自定义异常
+
+* 自定义异常格式
+
+  ```java
+  class 自定义异常类名 extends 异常类名{
+      ...
+  }
+  ```
+  
+* 自定义异常目地:为了给异常起个名字,并标记异常出现的问题,就起一个提示作用
+
+## 06_异常的注意事项
+
+* 异常注意事项
+
+    * 子类重写父类方法时,子类方法必须抛出相同的异常或父类异常的子类(即子类抛出的异常不能比父类抛出的异常范围大)
+    
+    * 如果父类抛出了多个异常,子类只能抛出相同的异常或者父类异常的子集(即子类不能抛出的异常比父类多)
+    
+    * 如果重写的方法没有抛出异常,那么子类的方法绝对不能抛出异常,如果子类有异常发生,只能try,不能throws
+
+* 使用异常处理
+
+    * 原则:能赢try解决的尽量用try,解决不了用throws
+
+    * 区别:
+
+        * 后续程序如果继续执行,使用try
+
+        * 后续程序不继续执行,使用throws
+
+    * 如果JDK没有自定义的异常,需要自定义异常
+
+## 07_File类
+
+* File其实就指的是一个路径
+
+* File的构造方法
+
+    * File(String pathname) :根据一个路径得到File对象
+
+    ```java
+    File file=new File("/Users/yh/Desktop/01_Day01_JavaSE基础01.md");  //根据绝对路径查看文件是否存在
+    System.out.println(file.exists());
+    ```
+    
+    > 在exlipse里可以直接使用相对路径
+
+    * File(String parent,String child):根据一个目录和一个字文件/目录得到File对象
+
+    ```java
+    String parent="/Users/yh/Desktop/";
+    String child="/01_Day01_JavaSE基础01.md";
+    File file=new File(parent, child);
+    System.out.println(file.exists());
+    ```
+
+    * File(File parent,String child):根据一个父File对象和一个字文件/目录得到File对象
+
+    ```java
+    String parent="/Users/yh/Desktop/";
+    String child="/01_Day01_JavaSE基础01.md";
+    File fileparent=new File(parent);          //将父类字符串转换为File类型
+    File file=new File(fileparent, child);
+    System.out.println(file.exists());
+    ```
+    
+## 08_File的创建功能
+
+* public boolean createNewFile():创建文件,如果存在这样的文件,就不创建了
+
+```java
+File file=new File("aaa.txt");
+System.out.println(file.createNewFile());  //创建文件夹,如果没有,创建,返回true,如果已经存在,不创建,返回false
+```
+
+* public boolean mkdir():创建文件夹,如果存在这样的文件夹,就不创建了
+
+```java
+File file=new File("aaa");
+System.out.println(file.mkdir());   //创建文件夹
+```
+
+* public boolean mkdirs():创建文件夹,如果父文件夹不存在,会帮你创建出来
+
+```java
+File file=new File("aaa/bbb");
+System.out.println(file.mkdir());   //创建多级文件夹
+```
+
+## 09_File的重命名与删除功能
+
+* public boolean renameTo(File dest):把文件重命名为指定文件路径
+
+```java
+//路径为相同下的改名
+File file1=new File("aaa.txt"); 
+File file2=new File("ooo.txt"); 
+System.out.println(file1.renameTo(file2));  //把file1的名字改为file2的名字
+//路径名不同时,是改名加剪切,相当于在指定路径把原来路径的文件改了名,然后把原来路径的给文件给删除了
+```
+
+* public boolean delete():删除文件或文件夹
+
+```java
+File file=new File("ooo.txt");     
+System.out.println(file.delete());    //删除文件
+File file=new File("aaa");  
+System.out.println(file.delete());    //删除文件夹,文件夹下没有文件和子文件夹时才能删除
+```
+
+## 10_File下的判断功能
+
+* public boolean isDirectory():判断是否是目录
+
+* public boolean isFile():判断是否是文件
+
+* public boolean exists():判断是否存在
+
+* public boolean canRead():判断是否可读
+
+* public boolean canWrite():判断是否可写
+
+* public boolean isHidden():判断是否隐藏
+
+## 11_File的获取功能
+
+* public String getAbsolutePath():获取绝对路径
+
+```java
+System.out.println(file.getAbsolutePath());
+```
+
+* public String getPath():获取构造方法中传入的路径,是相对路径还是绝对路径和构造方法中传入的一样
+
+```java
+System.out.println(file.getPath());  //该路径与文件路径一样,文件路径使用绝对路径,这里就是绝对路径,文件用相对路径,这里就是相对路径
+```
+
+* public String getName():获取名称
+
+```java
+System.out.println(file.getName());
+```
+
+* public long length():获取长度,字节数
+
+```java
+System.out.println(file.length());
+```
+
+* public long lastModified():获取最后一次修改的时间,毫秒值
+
+```java
+Date d=new Date(file.lastModified());         //创建日期对象
+SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日HH:mm:ss");  //格式化
+System.out.println(sdf.format(d));   //显示
+```
+
+* public String[] list():获取指定目录下的所有文件或者文件夹的名称数组
+
+```java
+File dir=new File("/Users/yh/Desktop/practice");
+String[] str=dir.list();
+for (String string : str) {
+	  System.out.println(string);    //得到的是路径名称
+}
+```
+
+* public File[] listFiles():获取指定目录下的所有文件或者文件夹的File数组
+
+```java
+File[] filearr=dir.listFiles();
+for (File file2 : filearr) {
+		System.out.println(file2);    //得到的是文件路径
+}
+```  
+
+## 12_文件名称过滤器
+
+* 接口FilenameFilter
+
+* public String[] list(FilenameFilter filter):根据名称过滤器获取指定目录下的所有文件或者文件夹的名称数组 
+
+```java
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+public class Demo_Test19 {
+
+	public static void main(String[] args) throws IOException {   
+		File file=new File("/Users/yh/Downloads");      //获取/Users/yh/Downloads的文件
+		String[] str=file.list(new FilenameFilter() {  //根据名称过滤器获取/Users/yh/Downloads理解下的子文件名称
+			@Override
+			public boolean accept(File dir, String name) {
+				//System.out.println(dir);dir指路径,这里指/Users/yh/Downloads
+				//System.out.println(name);name指文件/文件夹名
+				File f=new File(dir, name);      
+				return f.isFile()&&f.getName().endsWith(".dmg");
+			}
+		});
+		for (String string : str) {     //遍历
+			System.out.println(string);
+		}
+	}
+}
+``` 
+
+## 13_总结
+
