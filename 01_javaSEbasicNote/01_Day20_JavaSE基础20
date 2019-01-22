@@ -1,0 +1,228 @@
+# 01_Day20_JavaSE基础20
+
+[TOC]
+
+## 01_IO流概述
+
+* java对数据的传输处理是通过流的方式
+
+* java用于操作的流都在IO包中
+
+* 流的分类:
+
+    * 按流向分:输入流,输出流
+
+    * 按操作类型分:
+
+        * 字节流:能操作任何数据,因为计算机中数据就是通过字节存储的
+
+        * 字符流:只能操作纯字符数据
+
+* IO流四大抽象鼻祖
+
+    * 字节流的抽象父类:
+
+        * 字节输入流:InputStream
+
+        * 字节输出流:OntputStream
+
+    * 字符流的抽象父类:
+
+        * 字节输入流:Reader
+
+        * 字节输出流:Writer
+
+* IO流使用规则:
+
+    * 使用前,导入IO流包,使用中,进行IO流处理,使用后,释放资源
+
+## 02_FileInputStream读取数据
+
+* 错误得读法
+
+```java
+FileInputStream fis=new FileInputStream("aaa.txt");  //aaa.txt里存abc
+		 //fis.read()具有指针自动右移的功能
+		while(fis.read()!=-1) {             //此处的fis.read()=97,不等于-1,执行循环体       
+			System.out.println(fis.read()); //指针自动右移,此处的fis.read()=98
+		}
+		//然后fis.read()=99,不等于-1,执行循环体,循环体里fis.read()=-1
+		fis.close();
+```
+
+* 正确的读法
+
+```java
+FileInputStream fis=new FileInputStream("aaa.txt");  //aaa.txt里存abc
+		int b;
+		while((b=fis.read())!=-1) {                  
+			System.out.println(b); 
+		}
+		fis.close();
+```
+
+* 读的返回值类型为什么是int类型而不是byte类型
+
+因为byte类型在读取时会遇到11111111,转换为原码是-1,此时数据读取结束,这不是我们所希望的,而int类型读的是00000000 00000000 00000000 11111111,这才是真正的255,可以保证数据读完,最后写数据时会自定砍去前面的24位0.
+
+## 03_FileOutputStream写入数据
+
+* 写数据
+
+* FileOutputStream在创建写数据时,如果没有这个文件,就创造出来一个,如果已经有,再向里面写数据,会把以前的数据清除掉,重新写入刚写进去的内容,但是如果不想以前的内容被清除掉,可以使用构造方法中的追加功能.
+
+`FileOutputStream(String name, boolean append)`
+
+```java
+FileOutputStream fos=new FileOutputStream("yyy.txt"); //写时,要是没有,就自动创建
+		fos.write(97);
+		fos.write(98);
+		fos.write(99);
+		fos.close();
+```
+
+```java
+FileOutputStream fos=new FileOutputStream("yyy.txt",true);
+fos.write(100);
+```
+
+## 04_拷贝数据的方法
+
+* 1.逐个数据的拷贝.特点:效率低
+
+```java
+//创建输入流对象,关联/Users/yh/Desktop/01_Day19_JavaSE基础19.png
+		FileInputStream fis=new FileInputStream("/Users/yh/Desktop/01_Day19_JavaSE基础19.png");
+		//创建输出流对象,关联mmm.png
+		FileOutputStream fos=new FileOutputStream("mmm.png");
+		int b;
+		while((b=fis.read())!=-1) {   //不断的读取数据
+			fos.write(b);             //不断的写入数据
+		} 
+		fis.close();                  //关闭输入流
+		fos.close();	              //关闭输出流
+```
+
+* 2.一下子全部拷贝过去.特点:效率高,但JVM虚拟机内存比电脑内存还要少很多,一次传的太多,JVM抗不住,就崩溃了
+
+```java
+//创建输入流对象,关联/Users/yh/Desktop/01_Day19_JavaSE基础19.png
+		FileInputStream fis=new FileInputStream("/Users/yh/Desktop/01_Day19_JavaSE基础19.png");
+		//创建输出流对象,关联mmm.png
+		FileOutputStream fos=new FileOutputStream("ooo.png");
+		int i=fis.available();      //一次传入所有数据
+		byte[] arr=new byte[i];     //将所有的数据放入到一个字节数组里
+		fos.write(arr);             //一次写完
+		fis.close();                //关闭输入流
+		fos.close();                //关闭输出流
+```
+
+* 3.定义小数组读取数据.特点:效率根据定义的小数组字节数有关,常用此种方法
+
+![未命名](media/15480604468562/%E6%9C%AA%E5%91%BD%E5%90%8D.png)
+
+图片所示为使用小数组传输数据时的传输过程,为了避免出现最后输出结果不对的情况,可以使用方法write(byte[] b, int off, int len)
+
+* off:数据中的起始偏移量,索引,按照byte数组大小右移
+
+* len:要写入的字节数,前面都是的值都等于数组里的值,最后一个数组里剩多少就等于多少
+
+图片所示:第一次传输:off为0,len为2.第二次传输:off为2,len为1
+
+* 合理拷贝方法
+
+```java
+//创建输入流对象,关联/Users/yh/Desktop/01_Day19_JavaSE基础19.png
+		FileInputStream fis=new FileInputStream("/Users/yh/Desktop/01_Day19_JavaSE基础19.png");
+		//创建输出流对象,关联mmm.png
+		FileOutputStream fos=new FileOutputStream("ppp.png");
+		byte[] arr=new byte[1024*8];              //创建一个8K个字节的数组
+		int len;                   
+		while((len=fis.read(arr))!=-1) {     //一次读取两个字节
+		/*
+		注意:(len=fis.read())!=-1,如果这里这样写,就造成fis.read()读到a,将97赋给len,读的时候最后读的是97+98+99个空字符
+		*/
+			fos.write(arr, 0, len);                  //一次写入len个字节,读完后向后偏移
+		}
+		fis.close();                         //关闭输入流
+		fos.close();                         //关闭输出流
+```
+
+## 05_BufferedInputStream和BufferedOutputStream
+
+![未命名 2](media/15480604468562/%E6%9C%AA%E5%91%BD%E5%90%8D%202.png)
+* 代码如下:
+
+```java
+BufferedInputStream bis=new BufferedInputStream(new FileInputStream("/Users/yh/Desktop/01_Day19_JavaSE基础19.png"));
+BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream("lll.png"));
+int b;
+while((b=bis.read())!=-1) {
+	bos.write(b);
+}
+bis.close();
+bos.close();
+```
+
+* 小数组要比缓存区块一点
+
+## 06_flush与close
+
+* flush:刷新,刷新完后还能继续写
+
+* close:关闭,具备刷新的功能,在关闭流之前会刷新一次缓存区,关闭后不能再写了
+
+## 07_字节流读写中文问题
+
+* 字节流可以读中文,但到标点时就比较麻烦了,因此字节流相当于不能读一篇带标点的中文
+
+* 字节流可以写中文
+
+## 08_流再异常处理中的解决方法
+
+* 1.6版本流的异常处理
+
+```java
+FileInputStream fis=null;                  //局部变量
+FileOutputStream fos=null;
+try {
+	fis=new FileInputStream("ooo.png");    //输入流
+	fos=new FileOutputStream("lll.png");   //输出流
+	int len;
+	byte[] arr=new byte[1024*8];           //小数组
+	while((len=fis.read(arr))!=-1) {         //读
+		fos.write(arr,0,len);                      //写
+	} 
+}
+finally {
+	//嵌套是为了能关一个是一个
+	try {
+		if (fis!=null) {                   //不为空,才关
+			fis.close();
+		}
+	}finally {
+		if (fos!=null) {
+			fos.close();
+		}				
+	}	
+}
+```
+
+* 1.7版本流的异常处理
+
+```java
+try(
+//try()里的内容具有自动关流的作用,其实现了AutoCloseable这个类
+FileInputStream fis=new FileInputStream("ppp.png");    //输入流
+FileOutputStream fos=new FileOutputStream("nnn.png");   //输出流
+) {
+	int len;
+	byte[] arr=new byte[1024*8];             //小数组
+	while((len=fis.read(arr))!=-1) {         //读
+		fos.write(arr,0,len);                //写
+	}	
+}
+```
+
+`加密:一个数异或一个数是它本身"^"`
+

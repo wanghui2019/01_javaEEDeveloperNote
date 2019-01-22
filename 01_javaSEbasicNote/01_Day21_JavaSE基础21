@@ -1,0 +1,174 @@
+# 01_Day21_JavaSE基础21
+
+[TOC]
+
+## 01_字符流
+
+* 字符流是可以直接读写字符的IO流
+
+* 字符流读取字符时,先读取到字节数据,再转换为字符数据,写时也是先写出字符,再把字符转为字节写出,中间依靠的是码表
+
+## 02_字符流的读写
+
+```java
+//读字符
+FileReader fr=new FileReader("xxx.txxt");   //添加要读的文本
+int b;
+while((b=fr.read())!=-1) {                  //判断是否以及读完
+	System.out.print((char)b);              //将读取的字节转换为字符
+}
+fr.close();                                 //关流
+//写字符
+FileWriter fw=new FileWriter("ooo.txt");    //创建要写的文本
+fw.write("大家好!!");                        //写
+fw.close();                                 //关流
+```
+
+## 03_拷贝字符
+
+* 1.单个字符的拷贝
+
+```java
+FileReader fr=new FileReader("xxx.txxt");   //添加要读的文本
+FileWriter fw=new FileWriter("mmm.txt");    //添加要写入的文本
+int b;
+while((b=fr.read())!=-1) {                  //判断是否读完
+	fw.write(b);                            //写入
+}	
+fr.close();                                 //关闭输入流
+fw.close();   //此处如果不管输出流,文件无法写入,因为其内部又一个缓存去,必须使用close关流刷新
+```
+
+> 注意:不推荐拿字符流copy文本,因为中间要转换为字节,过程太慢.字符流不能拷贝非纯文本(就中文字符而言,就是不全是中文)的文件
+
+2.自定义数组的拷贝
+
+```java
+FileReader fr=new FileReader("xxx.txxt");   //添加要读的文本
+FileWriter fw=new FileWriter("nnn.txt");    //添加要写入的文本
+char[] arr=new char[1024*8];                //自定义一个数组,一个char是两个byte,所以这是是16K
+int len;
+while((len=fr.read(arr))!=-1) {                  //判断是否读完
+	fw.write(arr,0,len);                            //写入
+}	
+fr.close();                                 //关闭输入流
+fw.close();   //此处如果不管输出流,文件无法写入,因为其内部又一个缓存去,必须使用close关流刷新
+```
+
+## 04_BufferedReader与BufferedWriter
+
+```java
+BufferedReader br=new BufferedReader(new FileReader("nnn.txt"));
+BufferedWriter bw=new BufferedWriter(new FileWriter("yyy.txt"));
+int b;
+while((b=br.read())!=-1) {                  //判断是否读完
+	bw.write(b);                             //写入
+}	
+br.close();                                 //关闭输入流
+bw.close();   //此处如果不管输出流,文件无法写入,因为其内部又一个缓存去,必须使用close关流刷新
+```
+
+## 05_readLine()与newLine()
+
+* readLine()是BufferedReader的方法,用于读取一整行,返回值为String类型,遇到null时读取结束
+
+* newLine()是BufferedWriter的方法,用于写出时用于换行
+
+    * newLine()与\r\n的区别
+
+        * newLine()是跨平台的换行
+    
+        * \r\n只是再Windows下的换行
+
+
+```java
+BufferedReader br=new BufferedReader(new FileReader("mmm.txt"));
+BufferedWriter bw=new BufferedWriter(new FileWriter("yyy.txt"));
+String line;
+while((line=br.readLine())!=null) {                //判断是否读完
+	bw.write(line);                                //写入
+	bw.newLine();                                  //换行
+}	
+br.close();                                 //关闭输入流
+bw.close();   //此处如果不管输出流,文件无法写入,因为其内部又一个缓存去,必须使用close关流刷新
+```
+
+## 06_LineNumberRead,带行的文本读取
+
+* int getLineNumber():获取行号
+
+* void setLineNumber(int lineNumber):设置起始行号,开始值为设置值+1
+
+```java
+LineNumberReader lnr=new LineNumberReader(new FileReader("mmm.txt"));
+String line;
+lnr.setLineNumber(100);               //设置读取开始行号,读取时时行号+1
+while((line=lnr.readLine())!=null) {  //可读就读
+	System.out.println(lnr.getLineNumber()+":"+line);  //读取行号和行的内容
+}
+lnr.close();
+```
+
+## 07_装饰设计模式
+
+```java
+package com.test21;
+public class Demo_Test21 {
+	/*
+	 * 装饰设计模式
+	 */
+	public static void main(String[] args) {
+		BeiWenStudent bs=new BeiWenStudent(new NormalStudent());
+		bs.study();
+	}
+}
+interface School{
+	public void study();
+}
+class NormalStudent implements School{
+
+	@Override
+	public void study() {
+		System.out.println("javaSE");
+		System.out.println("javaEE");
+	}	
+}
+class BeiWenStudent implements School{
+	//获取被装饰类的引用
+	private NormalStudent student;
+	//在构造方法中传入被装饰类的对象
+	 public  BeiWenStudent(NormalStudent student) {
+		 this.student=student;
+	}
+	@Override
+	//对原有的功能进行升级
+	public void study() {
+		student.study();
+		System.out.println("python");
+		System.out.println("Android");
+	}
+}
+```
+
+## 08_递归
+
+* 递归其实就是自己调用自己
+
+```java
+public static void main(String[] args) {
+System.out.println(method(5));
+}
+public static int method(int num) {   //method方法
+	if (num==1) {
+		return 1;
+	}else {
+		return num=num*method(num-1);  //自己调用自己
+	}
+}
+```
+
+* 构造方法不能使用递归
+
+* 递归可以有返回值,也可以没有返回值
+
+* 递归的运算在栈内存中逐渐叠加,先不弹栈,直到达到递归的最终点时才逐渐自上而下谈栈,所以递归次数太多时会造成栈内存溢出
