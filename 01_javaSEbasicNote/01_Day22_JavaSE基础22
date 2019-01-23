@@ -1,0 +1,227 @@
+# 01_Day22_JavaSE基础22
+
+[TOC]
+
+## 01_什么是序列流
+
+* 序列流可以把多个字节输入流整合成一个,把序列流中读取数据时,将从被整合的第一个流开始读,读完一个之后继续读第二个,以此类推
+
+* 使用方式
+
+    * 1.整合两个:SequenceInputStream(InputStream.InputStream)
+
+    ```java
+    FileInputStream fis1=new FileInputStream("aaa.txt");        //创建输入流fis1
+    FileInputStream fis2=new FileInputStream("bbb.txt");        //创建输入流fis2
+    SequenceInputStream sis=new SequenceInputStream(fis1,fis2); //创建序列流sis
+    FileOutputStream fos=new FileOutputStream("ccc.txt");       //创建输出流fos
+    int b;
+		while((b=sis.read())!=-1) {                                  //逐个读取
+		fos.write(b);                                            //写入
+	}
+	sis.close();												 //关流
+	fos.close();                                                 //关流
+    ```
+    
+    * 2.整合多个序列流,使用枚举
+
+    ```java
+    FileInputStream fis1=new FileInputStream("aaa.txt");        //创建输入流fis1
+	FileInputStream fis2=new FileInputStream("bbb.txt");        //创建输入流fis2
+	FileInputStream fis3=new FileInputStream("ccc.txt");        //创建输入流fis3
+		
+	Vector<FileInputStream> v=new Vector<FileInputStream>();    //创建Vector集合对象
+	v.add(fis1);                                                //将流对象逐个添加到集合中
+	v.add(fis2);
+	v.add(fis3);
+		
+	Enumeration<FileInputStream> en=v.elements();                //将集合转换为枚举
+	SequenceInputStream sis=new SequenceInputStream(en);         //将输入流全部添加到序列流中
+	FileOutputStream fos=new FileOutputStream("ddd.txt");        //创建输入流fos
+	int b;
+	while((b=sis.read())!=-1) {									 //逐个读
+		fos.write(b);                                            //逐个写
+	}
+	sis.close();                                                  //关流
+	fos.close();												  //关流
+    ```
+    
+## 02_内存输出流
+
+* 什么是内存输出流
+
+    * 该输出流可以向内存中写数据,把内存当作一个缓冲区,写出之后可以一次性获取所有的数据
+
+    * 内存输入流可以解决输入流乱码的问题
+
+    ```java
+    FileInputStream fis=new FileInputStream("aaa.txt");     //创建输入流fis
+	ByteArrayOutputStream baos=new ByteArrayOutputStream(); //在内存中创建一个可以增长的内存数组
+	int b;
+	while((b=fis.read())!=-1) {                              //逐个读
+		baos.write(b);                                       //写到内存区中
+	}
+	byte[] arr=baos.toByteArray();                           //将其转换为字节数组
+	String s=new String(arr);                                //将其转换为字符串
+	//一下写法也行,直接使用toString是使用的平台默认码表
+	//System.out.println(baos.toString());
+	System.out.println(s);
+	fis.close();
+    //baos不用关,因为其在内存区内,并没有和硬盘交互
+    ```
+    
+## 03_随机访问流的读写
+
+* 随机访问流RandomAccessFile的功能
+
+    * 1.可以自己指定模式:可以选择只读,只写,读写,以及同步读写
+
+    * 2.内部有seek()方法,可以指定从何处开始读
+
+* 随机访问流RandomAccessFile的作用
+
+    * 可以在多线程下载的过程中使用随机访问流
+
+```java
+RandomAccessFile raf=new RandomAccessFile("aaa.txt", "rw");  //指定访问的文本和模式
+//raf.write(97);                    //写入一个字符
+//System.out.println(raf.read());   //读写入的字符
+raf.seek(10);                       //选择从哪个位置开始访问
+raf.write(98);
+raf.close();
+```
+
+## 04_对象操作流
+
+* 对象操作流ObjectOutputStream的作用
+
+    * 对对象进行流的操作
+
+* 序列化:存储数据,例如游戏的存档
+
+* 反序列化:把存储的数据拿出来.例如再次接着玩游戏
+
+```java
+ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("eee.txt"));  //创建输入流对象
+oos.writeObject(new Persion("zhangsan",23));                //写入对象
+oos.writeObject(new Persion("lisi",24));
+ObjectInputStream ois=new ObjectInputStream(new FileInputStream("eee.txt"));     //创建输出流对象
+Persion p;
+while((p=(Persion) ois.readObject())!=null) {              //如果对象不为空
+	System.out.println(p);                                 //读出
+}
+oos.close();
+ois.close();
+```
+
+* 上面的代码会出现java.io.EOFException异常
+
+* 优化代码:使用集合来对对象进行封装,写入时写入集合,读出时读出集合
+
+```java
+//创建对象写入流
+ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("fff.txt"));
+//创建集合并添加对象元素
+ArrayList<Persion> list=new ArrayList<Persion>();
+list.add(new Persion("zhangsan",23));
+list.add(new Persion("lisi",24));
+list.add(new Persion("wangwu",25));
+list.add(new Persion("zhaoliu",26));
+//将集合写入到fff.txt文件里
+oos.writeObject(list);
+//创建对象输出流
+ObjectInputStream ois=new ObjectInputStream(new FileInputStream("fff.txt"));
+//创建一个新的集合,用于接收fff.txt文件的内容
+ArrayList<Persion> newlist=new ArrayList<Persion>();
+//将接收的内容强转为集合
+newlist=(ArrayList<Persion>) ois.readObject();
+//对集合进行遍历
+for (Persion persion : newlist) {
+	System.out.println(persion);
+}
+//关流
+oos.close();
+ois.close();
+```
+
+## 05_数据的输入输出流
+
+* DataInputStream,DataOutputStream可以按照基本数据类型大小读写数据
+
+```java
+//创建数据流写对象
+DataOutputStream dos=new DataOutputStream(new FileOutputStream("xxx.txt"));
+dos.writeInt(997);   //此处如果用字节流写入会造成值的范围溢出,因为字节流只能读到-127~128
+dos.writeInt(998);
+dos.writeInt(999);
+dos.close();
+//创建数据流读对象
+DataInputStream dis=new DataInputStream(new FileInputStream("xxx.txt"));
+System.out.println(dis.readInt());
+System.out.println(dis.readInt());
+System.out.println(dis.readInt());
+dis.close();
+```
+
+## 06_PrintStream与PrintWriter
+
+* PrintStream是打印的字节流
+
+* PrintWriter是打印的字符流
+
+## 07_标准输入流和标准输出流
+
+* System.in:标准输入流
+
+* System.out:标准输出流
+
+## 08_InputStreamReader
+    
+* InputStreamReader是转换流,将字节流转换为字符流
+
+## 09_Properties的概述和作为Map集合的使用
+
+* Properties一般作为配置文件使用,所以它的类表示了一个持久的属性集
+
+* Properties可保存在流中或从流中加载
+
+* 属性列表中的每个键及其对应值都是一个字符串,所以Properties没有泛型  
+
+* Properties存储数据并遍历的代码
+
+```java
+Properties prop=new Properties();         //获取属性对象
+prop.put("zhangsan", "23");               //添加属性
+prop.put("lisi", "24");
+prop.setProperty("lisi","25");            //设置属性,会将键相同的原属性修改
+Enumeration<String> en=(Enumeration<String>) prop.propertyNames();
+while(en.hasMoreElements()) {
+     String key=en.nextElement();           //获取键
+	 String value=prop.getProperty(key);    //根据键获取值
+	 System.out.println(key+""+value);
+}
+```  
+
+* Properties里的重要作用
+
+    * void setProperty(key,value);  //设置属性,将原属性中键相同的值修改
+
+    * String getProperty(String key);  //根据键获取值
+
+    * load(...)方法,从输入字节流/字符流中读取属性列表（键和元素对）,其实就是将代码中定义的Properties对象与配置好的文件关联起来
+
+    * store(...)方法,将此属性表中的此属性列表（键和元素对）以适合使用load（Reader）方法的格式写入输出字符流。其实就是将关联后的配置文件与代码之间进行实时交互,可以通过此中方法改变代码的文件配置信息,来达到配置文件里的信息也跟着改变的情况
+
+    ```java
+    Properties prop=new Properties();         //获取属性对象
+    prop.load(new FileInputStream("test.properties"));  //将属性对象与配置文件关联起来
+	System.out.println("修改前:"+prop);
+	prop.setProperty("zhangsan","30");       //修改zhangsan的属性
+	//此中修改只能修改prop中的数据,不能修改配置文件的数据
+	System.out.println("修改后1:"+prop);
+	//只有store一下才能将配置文件修改
+	prop.store(new FileOutputStream("test.properties"), "change zhangsan properties");
+	System.out.println("修改后2:"+prop);
+    ```
+
+
