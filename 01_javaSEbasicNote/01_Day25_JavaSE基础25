@@ -1,0 +1,306 @@
+# 01_Day25_JavaSE基础25
+
+[TOC]
+
+## 01_单例设计模式
+
+* 单例设计模式:保证类在内存中只有一个对象
+
+* 单例设计模式之——饿汉式(常用)
+
+```java
+class Singleton{
+    //私有化构造方法,不让其它类使用
+    private Singleton(){}            
+    //自己创建,然后私有,不让外部修改s的值
+    private static Singleton s=new Singleton();   
+    //对外提供公共的访问方式.外部可以类名.调用
+    public static Singleton getSing() {   
+	   return s;
+    }
+}
+```
+
+* 单例设计模式之——懒汉式,也叫单例的延迟加载模式
+
+```java
+class Singleton{
+	//私有化构造方法,不让其它类使用
+	private Singleton(){}            
+	//定义私有化的成员变量s,然后私有
+	private static Singleton s;
+	//对外提供公共的访问方式.外部可以类名.调用
+	public static Singleton getSing() { 
+		if (s==null) {
+			//如果s=null,将s改为一个对象
+			s=new Singleton();
+		}
+		//如果s不为null,返回s
+		return s;
+	}
+}
+```
+
+* 饿汉式与懒汉式的区别
+
+    * 饿汉式是拿空间换时间,懒汉式是拿时间换空间
+
+    * 如果有多个线程访问懒汉式时,如果s==null,有可能造成在s=new Singleton();之前出现线程等待的情况,等待结束后抢线程向下继续执行时,因为执行的顺序问题会造成可能会创建出多个对象,这就不是单例设计模式了
+
+* 单例设计模式——其它
+
+```java
+class Singleton{
+    //私有化构造方法,不让其它类使用
+    private Singleton(){}            
+    //自己创建,设为公有,并定义为final类型,这样谁都改不了s的值
+    public final static Singleton s=new Singleton();   
+    //对外提供公共的访问方式.外部可以类名.调用
+    public static Singleton getSing() {   
+	   return s;
+    }
+}
+```
+
+* 单例设计模式的运用
+
+    * Runtime类就是一个饿汉式的单例设计模式
+
+    ```java
+    Runtime r=Runtime.getRuntime();     //获得运行时的实类
+    r.exec("shutdown -s -t 300");       //在Windows下设置为5分钟后关机
+    r.exec("shutdown -a");              //取消关机的命令
+    //使用单例设计模式为为了保证关机和取消关机的对象一致
+    ```
+    
+## 02_Timer类
+
+* Timer类是定时器
+
+* void schedule(TimerTask task, Date time);在指定时间执行TimerTask task这件事.TimerTask是个类,里面有抽象的run方法,抽象方法不能直接用,可以定义子类重写.
+
+```java
+public class Demo_Test25 {
+	public static void main(String[] args) throws IOException, InterruptedException {
+		Timer t=new Timer();
+		//从2019年1月25日11时02分30时开始执行new MyTimerTask()这个任务,并每隔3秒执行一次
+		t.schedule(new MyTimerTask(), new Date(119, 0, 25, 11, 02, 30),3000);
+		while(true) {
+			Thread.sleep(1000);
+			System.out.println(new Date());
+		}
+	}
+}
+class MyTimerTask extends TimerTask{
+	@Override
+	public void run() {
+		System.out.println("起床了");
+	}	
+}
+```
+
+## 03_线程之间的通信
+
+* 两个线程之间的通信
+
+```java
+class Printer{
+	private int flag=1;
+	public synchronized void print1() throws InterruptedException{
+		if (flag!=1) {            //1.flag=1,不满足,程序向下执行
+			this.wait();
+		}
+		System.out.print("你");   //2.执行
+		System.out.print("好");
+		System.out.println();
+		flag=2;                   //3.将flag改为2
+		this.notify();	            
+		/*4.随机唤醒,第一次没有要唤醒的线程,第一次的唤醒没有意义,然后两个线程开始抢,如果线程1(假如线程1在执行print1())抢到了,但flag=2满足flag!=1,线程1开始等待,此时只有线程2了,不得不执行.但如果一开始线程2(假如线程2在执行print2())抢到了*/
+	}
+	public synchronized void print2() throws InterruptedException{
+		synchronized (this) {
+			if (flag!=2) {           //5.flag=2不满足flag!=2
+				this.wait();
+			}
+			System.out.print("我");  //6.执行
+			System.out.print("也");
+			System.out.print("好");
+			System.out.println();
+			flag=1;                  //将flag改为1
+			this.notify();           //随机唤醒单个等待线程
+		}	
+	}
+}
+```
+
+* 三个线程之间的通信
+
+    * 将if换成while,将this.notify();换成this.notifyAll();
+    
+## 04_JDK1.5的新特性——互斥锁
+
+* ReentrantLock类成员方法:
+
+    * void lock()
+    
+    * void unlock()
+
+    * Condition newCondition();Condition的成员方法:
+
+        * void await()
+
+        * void signal()
+
+## 05_线程组
+
+* Java中使用ThreadGroup来表示线程组,它可以对一批线程进行分类管理,Java中程序可以直接对线程组进行控制
+
+* 默认情况下,所有线程都属于主线程组
+
+    * public final ThreadGroup getThreadGroup(). //通过线程对象获取它所属于的组
+
+    * public final String getName()  //通过线程组对象获取他组的名字
+
+* 对线程设置分组
+
+    * 1.ThreadGroup(String name)创建线程组对象并给其赋值名字
+
+    * 2.创建线程对象
+
+    * 3.Thread(ThreadGroup group, Runnable target, String name)将线程添加到组里
+
+    * 4.设置整组的优先级和守护线程
+
+## 06_线程池
+
+* 线程池的作用:
+
+    * 是为了把线程放在池子里,然后供对象使用,使用完后又回到池子里,处于空闲状态,等待下一个对象来使用,可以节省线程
+
+* 线程池的用法:
+
+    * JDK1.5新增了一个Executors工厂类来产生线程池
+
+        * public static ExecutorService newFixedThreadPool(int nThreads)   //向池子里放多个线程.nThreads为数量
+
+        * public static ExecutorService newFixedThreadPool()   //向池子里放1个线程.
+
+        * 这些方法的返回值类型是ExecutorService对象,该对象表示一个线程池,可以执行Runnable对象或者Callable对象代表的线程,提供如下方法
+
+            * <T> Future<T> submit(Callable<T> task)
+
+            * Future<?> submit(Runnable task)
+
+## 07_简单工厂模式和工厂设计模式
+
+* 简单工厂模式
+
+    * 就是先创建一个工厂类,然后把各个对象都放进去
+
+* 工厂设计模式
+
+    * 先创建一个接口,然后把工厂给放进去
+
+
+        
+## 08_GUI
+
+* 什么是GUI:
+
+    * Graphical User Interface 图形用户接口
+
+* 创建窗体
+
+```java
+Frame f=new Frame("QQ");
+f.setLayout(new FlowLayout());    //设置布局管理器
+f.setSize(500,400);               //设置窗体大小
+f.setLocation(300,200);           //设置窗体出现在屏幕上的位置
+f.setIconImage(Toolkit.getDefaultToolkit().createImage("qq.png"));
+f.setVisible(true);
+```
+
+* 布局管理器
+
+    * FlowLayout(流式布局管理器)
+
+        * 从左到右的顺序排列
+
+        * Panel默认的布局管理器
+
+    * BorderLayout(边界布局管理器)
+
+        * 东,南,西,北,中
+
+        * Frame默认的布局管理器
+
+    * GridLayout(网格布局管理器)
+
+        * 规则的矩阵
+
+    * CardLayout(卡片布局管理器)
+
+        * 选项卡
+
+    * GridBagLayout(网格包布局管理器)
+
+        * 非规则的矩阵
+
+* 窗体监听
+
+    ```java
+    //退出窗体
+    f.addWindowListener(new WindowAdapter() {
+    	@Override
+    	public void windowClosing(WindowEvent e) {
+    		System.exit(0);
+    	}
+    });
+    ```
+    
+* 鼠标监听
+
+    ```java
+    b1.addMouseListener(new MouseAdapter() {
+    	@Override
+    	public void mouseReleased(MouseEvent e) {  //释放鼠标触发
+    		System.exit(0);
+    	}
+    	@Override
+    	public void mouseClicked(MouseEvent e) {   //单击鼠标触发
+    	}
+    });
+    ```
+    
+* 键盘监听
+
+    ```java
+    //键盘监听,table键可以切换按钮,切换到指定按钮后再按enter就可以退出
+    b2.addKeyListener(new KeyAdapter() {
+    	/*
+    	@Override  //按下触发
+    	public void keyPressed(KeyEvent e) {
+    		if (e.getKeyCode()==KeyEvent.VK_ENTER) {
+    			System.exit(0);
+    		}	
+    	}
+    	*/
+    	@Override  //释放触发
+    	public void keyReleased(KeyEvent e) {
+    		if (e.getKeyCode()==KeyEvent.VK_ENTER) {
+    			System.exit(0);
+    		}
+    	}		
+    }) ;
+    ```
+    
+* 动作监听
+
+* GUI的一些小常识
+
+    * 事件:用户的一个操作
+
+    * 事件源:被操作到组件
+
+    * 监听器:一个自定义类的对象,实现了监听器接口,包含事件处理方法,把监听器添加到事件源上,当事件发生的时候虚拟机就会自动调用监听器中的事件处理方法
+    
