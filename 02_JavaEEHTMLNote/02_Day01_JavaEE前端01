@@ -1,0 +1,217 @@
+# 02_Day01_JavaEE前端技术01
+
+[TOC]
+
+## 01_HTML入门
+
+* HTML:Hyper Text Markup Language超文本标记语言
+
+```html
+<!DOCTYPE html>
+<!--
+    1.上面是一个文档声明
+    2.根标签html
+    3.html文件注意包含两部分,头文件和体文件
+        头文件:主要是用来放置一些页面信息
+        体部分:注意放置我们的HTML页面内容
+    4.通过标签来对内容进行描述,标签通常都是由开始标签和结束标签组成
+    5.标签不区分大小写
+-->
+<html lang="en">
+<head>
+    <!--网站的配置信息-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--指定网站标题-->
+    <title>我的第一个网页</title>
+</head>
+<body>
+    <h1>喜洋洋</h1>
+</body>
+</html>
+```
+
+## 02_常见标签
+
+* 标题标签:h1~h6
+
+* 水平分割线:\<hr />
+
+* 段落:p
+
+* 颜色标签:
+
+    * 标签:\<font>
+
+        * 颜色:color
+
+        * 字体大小:size,范围1~7
+
+        * 字体:face
+
+* 格式:
+
+    * <标签 属性的名称="属性的值">
+
+* 斜体:\<i>
+
+* 加粗:\<b>
+
+* 加粗:\<strong>  带语义标签,例如小说中语音读取时会重读音
+
+* 斜体:\<em>   带语义标签
+
+## 03_网站图片显示
+
+* 标签\<img>
+
+    * src:指定图片路径
+
+    * width:指定图片宽度
+
+    * height:图片高度
+
+    * alt:图片未正常加载时提示
+
+* background:背景图片
+
+## 04_路径
+
+* ./代表的是当前路径
+
+* ../代表的是上一级路径
+
+* ../../代表的是上上一级路径
+
+## 05_网站友情链接
+
+* 无序链接:\<ul type="类型">
+
+    * type:
+
+        * disc:实心圆,默认值
+
+        * circle:空心圆
+        
+        * square:小方块
+
+    * li:列表项
+
+* 有序链接\<ol type="类型" start="2">
+
+    * type:序号类型
+
+    * start:从几开始,必须是数字
+
+    * li:列表项
+
+## 06_超链接
+
+* 标签:\<a>
+
+    * 常用的属性
+
+        * href:指定要跳转去的链接地址,访问外需要加上http协议,如果要访问的是本网站的html文件,可以直接写文件路径
+
+        * target:以什么方式打开
+
+            * _self:默认打开方式,在指定窗口打开
+
+            * _blank:新起一个标签页打开页面
+
+## 07_表格标签
+
+* 标签\<table>
+
+    * 常用属性:
+
+        * border:指定边框宽度
+
+        * width:指定表格宽度
+
+        * height:指定表格高度
+
+        * bgcolor:指定背景颜色
+
+        * align:对齐方式
+
+    * 标签\<tr>:行标签
+
+    * 标签\<td>:列标签
+
+        * 表格个合并:colspan:跨列,rowspan:跨行
+
+## 08_表单输出项
+
+* form:(与input中的submit配套使用)
+
+    * action:直接提交的地址
+
+    * method:
+
+        * get方式,默认的提交方式,会将参数拼接在链接后面,有大小限制,4K
+
+        * post方式,会将参数封装在请求体中,没有大小限制
+
+* input:
+
+    * type:指定输入项的类型
+
+        * text:文本
+
+        * password:密码框
+
+        * radio:单选按钮
+
+        * checkbox:复选框
+
+        * file:上传文件
+
+        * submit:提交按钮
+
+        * button:普通按钮
+
+        * reset:重置按钮
+
+        * hidden:隐藏域
+
+        * date:日期类型
+
+        * tel:手机号
+
+        * number:只可以输入数字
+
+    * placeholder:指定默认的提示信息
+
+    * name:在表单提交的时候,当作参数的名称
+
+    * id:给输入项取一个名字,以便后期找到它,并操作它
+
+* textarea:文本域,可以输入一段文本
+
+    * cols:指定宽度
+
+    * rows:指定高度
+
+* select:下拉列表
+
+    * option:选择项
+
+## 09_框架
+
+* frameset
+
+    * rows:指定排列方式为行
+
+    * cols:指定排列方式为列
+
+    * 属性
+
+        * frame 后跟路径,表示这个frame从哪里来的
+
+        
+
+
+
+            
