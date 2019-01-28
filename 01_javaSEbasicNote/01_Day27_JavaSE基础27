@@ -1,0 +1,446 @@
+# 01_Day27_JavaSE基础27
+
+[TOC]
+
+## 01_类的加载概述
+
+* 当程序要使用某个类时,如果该类还未被加载到内存中,则系统会通过加载,连接,初始化来实现对这个类进行初始化
+
+* 加载
+
+    * 就是指将class文件读入内存中,并为之创建一个Class对象,任何类被使用时系统都会建立一个Class对象
+
+* 连接
+
+    * 验证:是否有正确的内部结构,并和其它类协调一致
+
+    * 准备:负责为类的静态成员分配内存,并设置默认初始化值
+
+    * 解析:将类的二进制数据中的符号引用替换为直接引用
+
+* 初始化:就是指一般对于数据,构造方法等的初始化
+
+* 加载时机
+
+    * 创建类的实例
+
+    * 访问类的静态变量,或者为静态变量赋值
+
+    * 调用类的静态方法
+
+    * 使用反射方式来强制创建某个类或接口对用的java.lang.Class对象
+
+    * 初始化某个类的子类
+
+    * 直接使用java.exe命令来运行某个主类
+
+## 02_类加载器的概述和分类
+
+* 类加载器的概述
+
+    * 负责将.class文件加载到内存中,并为之生成对应的Class对象
+
+* 类加载器的分类和作用
+
+    * Bootstrap ClassLoader 根类加载器
+
+        * 也被成为引导性加载器,负责java核心类的加载,比如System,String类等,存在与JRE的lib目录下rt.jar文件中
+
+    * Extension ClassLoader 扩展类加载器
+
+        * 负责JRE扩展目录中jar包的加载,存在于JRE的lib目录下ext目录
+        
+    * System ClassLoader 系统加载器
+    
+        * 负责在JVM启动时加载来自java命令的class文件,以及classpath环境变量所指定的jar包和类路径
+
+## 03_三种方式获取字节码文件
+
+* 假如有一个Persion类,现在要获取该类的字节码对象
+
+    * 1.`Class clazz=Class.forName("com.test.Persion");`
+
+    * 2.`Class clazz=Persion.class;`
+
+    * 3.
+
+        ```java
+        Persion p=new Persion();
+        Class clazz=p.getClass();
+        ```
+        
+## 04_利用反射获取实例
+
+* 获取无参构造方法
+
+```java
+//创建字符流缓存区得到Fruit.propertise配置文件信息
+BufferedReader br=new BufferedReader(new FileReader(new File("Fruit.propertise")));
+//读取配置文件的一行得到相应的字节码对象
+Class<?> clazz=Class.forName(br.readLine());
+//由字节码对象得到水果
+Fruit f=(Fruit) clazz.newInstance();      //Fruit f=new Apple();父类引用指向子类对象
+//创建榨汁机对象
+Juice j=new Juice();
+//开始榨汁
+j.run(f);
+//关流释放资源
+br.close();
+```
+
+* 获取有参构造方法
+
+```java
+Class clazz=Class.forName("com.test27.Persion");
+//获取有参构造
+Constructor<T> c=clazz.getConstructor(String.class,int.class);
+//根据有参构造创建对象
+Persion p=(Persion)c.newInstance("zhangsan",23);
+```
+
+* 获取成员变量
+
+```java
+Class clazz=Class.forName("com.test27.Persion");
+//获取有参构造
+Constructor<T> c=clazz.getConstructor(String.class,int.class);
+//根据有参构造创建对象
+Persion p=(Persion)c.newInstance("zhangsan",23);
+Field f=clazz.getDeclaredField("name");  //通过暴力反射获取name字段,可以回去私有的
+f.setAccessible(true);                   //将私有权限去除
+f.set(p, "lisi");                        //修改字段内容
+```
+
+* 获取方法并使用
+
+```java
+Class clazz=Class.forName("com.test27.Persion");
+//获取有参构造
+Constructor<T> c=clazz.getConstructor(String.class,int.class);
+//根据有参构造创建对象
+Persion p=(Persion)c.newInstance("zhangsan",23);
+//方法是无参的
+Method m1=clazz.getMethod("eat");    //eat为Persion类中的一个方法
+m1.invoke(p);                        //让Persion类中的eat方法跑起来
+//方法是有参的
+Method m2=clazz.getMethod("eat", int.class);   //假如传的参数是整型
+m2.invoke(p, 10);                              //传入的参数为10
+```
+
+* 通过放射越过泛型检查
+
+    * 泛型的检查是在编译期进行的,反射操作的是字节码文件,以及不在编译期了,所以通过反射能够越过泛型的检查
+
+      ```java
+      //需求:在泛型为Integer的集合中添加字符串
+		ArrayList<Integer> list=new ArrayList<Integer>();      //创建集合对象,泛型为整型
+		list.add(111);                                         //正常添加整型
+		Class<?> clazz=Class.forName("java.util.ArrayList");   //创建集合的字节码对象
+		Method m=clazz.getMethod("add", Object.class);         //获取add方法
+		m.invoke(list, "abc");                                 //在list集合中添加字符串
+		System.out.println(list);
+    ```
+    
+* 通用修改属性值的方法
+
+```java
+//一下这个类和方法不是API中所提供的方法,但这个方法可以用于修改类的属性值
+class Tool{
+	public void setProperty(Object obj,String propertyName,Object value) throws Exception{
+		Class<? extends Object> clazz=obj.getClass(); //创建类的字节码对象
+		Field f=clazz.getField(propertyName);         //创建要修改的属性字段
+		f.set(obj, value);                            //修改
+	}
+}
+```
+
+## 05_动态代理
+
+* 迷迷糊糊
+
+## 06_模版设计模式
+
+* 该模式特点:定义一个算法的股价,将具体的算法延迟到子类中来实现
+
+* 1.定义一个类,类里定义一个方法,起来防止方法被写死,将方法抽离出来,抽离出来的方法在这个类里依然是死的,所以将方法改为抽象,方法抽象,类也要改为抽像
+
+* 2.抽象的方法必须被重写,于是创建子类对象来重写抽象方法,子类对象具有父类的一切特征,但为了防止子类随便修改父类特性,将父类方法定义为final类型,此时子类就可以瞎搞了
+
+```java
+package com.test27;
+
+public class Demo_Practice {
+	/*
+	 * 以计算代码运行时间为例
+	 */
+	public static void main(String[] args) {
+		Demo d=new Demo();
+		System.out.println(d.getTime());
+		
+	}
+}
+abstract class GetTime{                         //方法是抽象的,类也必须是抽象的
+	public final long getTime() {              //final修饰防止子类随便修改父类方法
+		long start=System.currentTimeMillis();  //获取代码运行前时间
+		timeCode();                             //运行的代码
+		long end=System.currentTimeMillis();    //获取代码运行后时间
+		return end-start;                       //将时间差返回
+	}
+	//将方法定义为抽象的,这个方法必须被重写,可以让子类对这个方法发扬光大
+	public abstract void timeCode();
+}
+class Demo extends GetTime{
+	@Override
+	public void timeCode() {                    //这个方法里可以写任何想要的东西
+		for (int i = 0; i < 100000; i++) {
+			System.out.println("111");
+		}
+	}	
+}
+```
+
+* 一些设计模式:1.装饰 2.单例 3.简单工厂 4.工厂方法 5.适配器 6.模版
+
+## 07_自己实现枚举类以及JDK1.5版本以后创建枚举类
+
+* 枚举:是指将变量的值一一列出来,是有限个变量才能叫枚举,例如一星期七天
+
+* 枚举类:单例设计模式是只能创建一个对象,而枚举类其实就是创建有限个单例设计
+
+* 创建枚举类有三种方法
+
+    * 1.创建无参的枚举类
+
+    ```java
+    //自己创建的无参星期类
+    package com.week;
+    public class Week {
+	 private Week() {}                           //私有构造方法,不让其它类创建对象
+	 public static final Week MON=new Week();    //自己拿自己创建对象,static是为了让外界可以调用
+	 public static final Week TUE=new Week();
+	 public static final Week WED=new Week();	
+    }
+    ```
+    
+    ```java
+    //枚举类实现无参星期
+    package com.week;
+    public enum Week {       //直接使用枚举类创建
+	  MON,TUE,WED;
+    }
+    ```
+    
+    ```java
+    //测试类
+    package com.week;
+    public class Week {
+	 private Week() {}                           //私有构造方法,不让其它类创建对象
+	 public static final Week MON=new Week();    //自己拿自己创建对象,static是为了让外界可以调用
+	 public static final Week TUE=new Week();
+	 public static final Week WED=new Week();
+    }
+    ```
+    
+    * 2.创建有参的枚举类
+
+    ```java
+    //自己实现有参星期类
+    package com.week;
+    public class Week {
+	 private String name;
+	 private Week(String name) {                           //私有构造方法,不让其它类创建对象
+		 this.name=name;
+	}                                 
+	 public static final Week MON=new Week("星期一");    //自己拿自己创建对象,static是为了让外界可以调用
+	 public static final Week TUE=new Week("星期二");
+	 public static final Week WED=new Week("星期三");
+	 //获取名字
+	 public String getName() {
+		 return name;
+	 }	
+    }
+    ```
+    
+    ```java
+    //枚举类实现有参
+    package com.week;
+    public enum Week {
+	 MON("星期一"),TUE("星期二"),WED("星期三");
+	 private String name;
+	 private Week(String name) {
+		 this.name=name;
+	 }
+	 public String getName() {
+		 return name;
+	 }
+   }
+    ```
+    
+    ```java
+    //测试类
+    package com.week;
+    public class Demo_Enum {
+	 public static void main(String[] args) {
+		 Week mon = Week.MON;       //类名.调用
+		 Week tue = Week.TUE;
+		 Week wed = Week.WED;
+		 System.out.println(mon.getName());
+	 }
+   }
+    ```
+    
+    * 3.星期类中有抽象方法的情况
+
+    ```java
+    //自己创建含有抽象方法的星期类
+    package com.week;
+    public abstract class Week {
+	 private String name;
+	 private Week(String name) {                           //私有构造方法,不让其它类创建对象
+		 this.name=name;
+	 }   
+	 //有私有方法,不能在new了.但能使用匿名内部类
+	 public static final Week MON=new Week("星期一") {  
+		 public void show() {
+			 System.out.println("星期一");
+		 }
+	 };
+	 public static final Week TUE=new Week("星期二") {  
+		 public void show() {
+			 System.out.println("星期二");
+		 }
+	 };
+	 public static final Week WED=new Week("星期三") {  
+		 public void show() {
+			 System.out.println("星期三");
+		 }
+	 };
+	
+	 //获取名字
+	 public String getName() {
+		 return name;
+	 }	
+	 public abstract void show();
+   } 
+    ```
+    
+    ```java
+    //枚举实现的方式
+    package com.week;
+    public enum Week {
+	 MON("星期一"){
+		 public void method() {
+			 System.out.println("星期一");
+		 }
+	 },
+	 TUE("星期二"){
+		 public void method() {
+			 System.out.println("星期二");
+		 }
+	 },
+	 WED("星期三"){
+		 public void method() {
+			 System.out.println("星期三");
+		 }
+	 };
+	 private String name;
+	 private Week(String name) {
+		 this.name=name;
+	 }
+	 public String getName() {
+		 return name;
+	 }
+	 public abstract void method();
+    }
+    ```
+    
+    ```java
+    //测试类
+    package com.week;
+    public class Demo_Enum {
+
+	 public static void main(String[] args) {
+		 Week mon = Week.MON;       //类名.调用
+		 Week tue = Week.TUE;
+		 Week wed = Week.WED;
+		 mon.show();                //编译看左边,运行看匿名内部类里的方法
+	 }
+   }
+    ```
+    
+## 08_使用枚举类的注意事项以及枚举类的常用方法
+
+* 注意事项
+
+    * 定义枚举类要使用enum
+
+    * 所有枚举类都是Enum的子类
+
+    * 枚举项必须在枚举类的第一行
+
+    * 枚举类可以有构造器,但必须是private的,默认也是private,不让其他类创建对象
+
+    * 枚举类也可以有抽象方法,但枚举项必须重写该方法
+
+    * 枚举在switch语句中的使用
+
+    ```java
+    package com.week;
+    public class Demo_Enum {
+
+	 public static void main(String[] args) {
+		 Week mon = Week.MON;       //类名.调用
+		 switch (mon) {             //mon为对象条件
+		 case MON:                  //MON为枚举项
+			 System.out.println("星期一");
+			 break;
+		 case TUE:
+			 System.out.println("星期二");
+			 break;
+		 case WED:
+			 System.out.println("星期三");
+			 break;
+		 }
+	 }
+    }
+    ```
+    
+* 枚举类中的常用方法
+
+    * int ordinal()           //获取枚举编号
+
+    * int compareTo(E o)      //比较两个枚举项的编号,将差值返回
+
+    * String name()           
+
+    * String toString()
+
+    * <T> T valueOf(class<T> type,String name)     
+
+    * values()                //获取枚举项的数组,可以在遍历枚举项时使用
+
+## 09_JDK7的六个新特性
+
+* 二进制字面量
+
+`System.out.println(0b011010);`
+
+* 数字字面量可以出现下划线
+
+`System.out.println("100_000");`
+
+* switch语句可以使用字符串
+
+* 泛型简化,菱形泛型
+
+* 异常的多个catch合并,每个异常用或|
+
+* try-with-resources。自动关流
+
+## 10_JDK8的新特性  
+
+* 接口中可以定义有方法体的方法,如果是非静态的,必须使用default修饰,如果是静态的就不用了
+
+* 局部内部类使用方法中的局部变量时,方法中的局部变量可以不用final修饰,默认以及被修饰了
+        
+        
