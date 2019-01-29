@@ -1,0 +1,286 @@
+# 02_Day02_JavaEE前端技术02
+
+[TOC]
+
+## 01_块标签
+
+* HTML的块标签
+
+    * div标签:默认占一行,自动换行
+    
+    * span标签:内容显示在同一行
+
+* CSS:Cascading Style Sheets 层叠样式表
+
+* CSS的简单语法
+
+```html
+<style>
+    选择器{
+        属性的名称:属性的值;
+        属性的名称2:属性的值2;
+    }
+</style>
+```
+
+## 02_CSS的选择器
+
+* 元素选择:一般元素
+
+```html
+元素的名称{
+    属性名称:属性的值;
+    属性名称:属性的值;
+}
+```
+
+* ID选择:id
+
+```html
+以#号开头
+#ID的名称{
+    属性名称:属性的值;
+    属性名称:属性的值;
+}
+```
+
+* 类选择:class
+
+```html
+以.开头
+.类的名称{
+    属性名称:属性的值;
+    属性名称:属性的值;
+}
+```
+
+* CSS的引入方式:
+
+    * 外部样式:通过link标签引入一个外部的***css***文件
+
+    ```html
+    .a{
+        color: blue;
+    }
+    ```
+
+    * 内部样式:直接在style标签内编写css代码
+
+    * 行内样式:直接在标签中添加style属性,编写css样式,简单粗暴
+
+    `<div style="color:blue; font-size:50px;">章三</div>`
+    
+* CSS的浮动
+
+    * 浮动的元素会脱离正常的文档流,在正常的文档流中不占空间,个人理解,相当于有两个图层,正常的文档流在下面一个图层,浮动的元素在上面一个图层,浮动的元素能覆盖掉下面的正常文档流
+
+    * float属性
+
+        * left
+
+        * right
+
+    * clear属性:清除浮动
+
+        * both:两边都不容许浮动
+
+        * left:左边不可以浮动
+
+        * right:右边不可以浮动
+
+    * 设置行高可以改变为局中
+
+    ```html
+    <!--设置的div样式为70px,假如文字高度为20px,此时文字在div的上端,设置行高就是设置文字的高度,显然,
+    文字没有那么高,div又限制了高度只能为70px,于是浏览器就把文字上面加25px,下面加25px,文字就相当于放在了中间-->
+    height: 70px; 
+    line-height: 70px;
+    ```
+    
+    * 选择器的优先级
+
+        * 行内选择器>id选择器>类选择器>元素选择器
+
+        * 同样类别的选择器遵循就下原则
+
+        ```html
+         <style>
+        .a{
+            color:blue;
+        }
+        <!--最后显示颜色是里body最近的一个-->
+        .b{
+            color:red;
+        }
+        </style>
+        </head>
+        <body>
+            <div class="a b">11111111</div>
+        </body>
+        ```
+        
+    * CSS中的其它选择器
+
+        * 选择器分组:`选择器1,选择器2{属性的名称:属性的值}`.其实就是不一个一个改了
+
+        ```html
+        h1,h2,h3,h4{color:red}
+        ```
+
+        * 属性选择器
+
+        ```html
+        a[title]<!--标签[属性]-->
+        a[title="aaa"]<!--标签[属性=属性值]-->
+        a[href][title]<!--标签[属性1][属性2]-->
+        a[href][title="aaa"]<!--标签[属性1][属性2=属性值]-->
+        ```
+        
+        * 后代选择器:`标签 属性` 找出所有属性的后代
+
+        * 子元素选择器:`标签>属性`   只找出属性的第一代
+
+        * 伪类选择器:通常都是用在a标签上
+
+         ```html
+         a:link{color:red} <!--未访问的链接-->
+         a:visited{color:blue} <!--已访问的链接-->
+         a:hover{color:black} <!--鼠标移动到链接上-->
+         a:active{color:yellow} <!--选定的链接-->
+         ```
+         
+## 03_CSS的盒子模型
+
+* 内边距
+
+    * padding-top
+
+    * padding-right
+
+    * padding-bottom
+
+    * padding-left
+
+    ```html
+    padding:10px;  上下左右都是10px
+    padding:10px 20px;  上下都是10px  左右都是20px
+    padding:10px 20px 30px; 上 10px 右 20px 下 30px 左 20px
+    padding:10px 20px 30px 40px; 上右下左,顺时针方向
+    ```
+    
+* 内边距
+
+    * margin-top
+
+    * margin-right
+
+    * margin-bottom
+
+    * margin-left
+
+* CSS绝对定位
+
+    * position:absulte
+
+    * top:控制距离顶部的位置,距离最顶部位置
+
+    * left:控制距离左边的位置
+
+## 04_JavaScript
+
+* JavaScript是一种直译式的脚本语言
+
+* 什么是脚本语言?
+
+    * java语言的执行过程:java源代码-->编译成.class文件-->java虚拟机
+
+    * 脚本语言:源码-->解释执行
+
+    * js是由浏览器解释执行的,所以是一种脚本语言
+
+* JS的组成
+
+    * ECMAScript:核心部分,定义js的语法规范
+
+    * DOM:document Object Model文档对象模型,主要是用来管理页面的
+
+    * BOM:Browser Object Model浏览器对象模型,前进,后退,页面刷新,地址栏,历史记录,屏幕宽高......
+
+* JS语法特征
+
+    * 变量若类型:var
+
+    * 区分大小写
+
+    * 语句接收后的分号,可以有也可以没有
+
+    * 写在script标签里
+
+* JS数据类型
+
+    * 基本类型
+
+        * string
+
+        * number
+
+        * boolean
+
+        * undefine
+
+        * null
+
+    * 引用数据类型
+
+        * 对象,内置对象
+
+    * 类型转换
+
+        * js内部自动转换
+
+* JS运算符和语句
+
+    * 运算符和java一样
+
+        * "==="全等号:值和类型都必须相等
+
+        * "==":值相等就可以了
+
+    * 语法和java一样
+
+* JS的输出
+
+    * alert()直接弹框
+
+    * document.write()向页面输出
+
+    * console.log()向页面输出
+
+    * 获取页面元素:document.getElementById("id的名称")
+
+* JS声明变量
+
+    `var变量的名称=变量的值`
+
+* JS声明函数
+
+```script
+var函数的名称=function(){
+    ...
+}
+function函数的名称(){
+    ...
+}
+```
+    
+* JS的开发步骤
+
+```test
+1.确定事件
+2.通常事件都会触发一个函数
+3.函数里面通常都会去操作页面元素,做一些交互动作
+```
+
+
+    
+    
