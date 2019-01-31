@@ -1,0 +1,192 @@
+# 02_Day03_JavaEE前端技术03
+
+[TOC]
+
+## 01_图片轮番播放
+
+* JS代码执行顺序,从上到下执行,但是不包括function(),function()必须由事件触发执行
+
+* 定时器
+
+    * timer=setInterval("函数",时间);设置函数多久时间执行一次,返回一个id参数
+
+    * clearInterval(timer);关闭定时器
+
+    * setTimeout()只在时间到时调用一次
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script>
+        function changeImg(){
+            var img = document.getElementById("img1");
+            img.src="./img/emancipation.jpg";
+        }
+        <!--过3秒后开始执行changeImg()-->
+        function init(){
+            setInterval("changeImg()",3000);
+        }
+    </script>
+</head>
+<!--当一下图片加载上后开始执行onload事件-->
+<body onload="init()">   
+    <img src="./img/jiuyang.jpg" width="100%" id="img1" />
+</body>
+</html>
+```
+
+## 02_设置图片的显示和隐藏
+
+* style对象
+
+    * display属性
+
+        * none:隐藏
+
+        * block:显示,上下换行
+
+## 03_JS常用事件
+
+* onfocus事件:获得焦点事件,就是指光标,只有鼠标左键点一下,光标一移上去,就触发事件
+
+* onblur:失去焦点,只光标被移走时触发事件
+
+* onkeyup:键盘按键抬起时触发事件
+
+```script
+<script>
+    var text01;                 //获取成员变量
+    //设置提示语
+    function fouse(){
+        text01=document.getElementById("alert1");
+        text01.innerHTML="<font color='red' size='2'>长度不能小于6位</font>";  
+    }
+    //焦点移开时触发
+    function check(){
+        var username=document.getElementById("username").value;
+        text01.innerHTML="";
+        if(username.length<6){
+            text01.innerHTML="<font color='red' size='2'>对不起,太短</font>";
+        }else{
+            text01.innerHTML="<font color='red' size='2'>用户名可用</font>";      
+        } 
+    }
+</script>
+```
+
+## 04_表单的隔行换色
+
+* 对象:table
+
+    * 对象集合:rows[],返回包含表格中所有行的一个数组
+
+    * 对象集合:cells[],返回包含表格中所有单元格的一个数组
+
+```html
+<script>
+    function init(){
+        var tab=document.getElementById("tab");
+        var rows=tab.rows;
+        for(var i=0;i<rows.length;i++){  
+        var row=rows[i];  
+        if(i%2==0){
+            row.bgColor="yellow";
+        }else{
+            row.bgColor="blue";
+        }
+    }
+}
+</script>
+```
+
+## 05_表格的全选和全不选
+
+* 对于checkbox,要得到其状态,可以使用checked.
+
+```html
+<script>
+    function init(){
+        //得到第一个checkbox
+        var checkone=document.getElementById("checkone");
+        //定义第一个checkbox的状态
+        var checkstatiu=checkone.checked;
+        //根据标签名称获取所有的checkbox
+        var checkall=document.getElementsByTagName("input");
+        //对checkbox进行遍历
+        for(var i=1;i<checkall.length;i++){
+            //得到每一个checkbox
+            var checkbox=checkall[i];
+            //让遍历的checkbox的状态和第一个checkbox的状态一致
+            checkbox.checked=checkstatiu;
+        }
+    }
+</script>
+```
+
+## 06_DOM
+
+* DOM:Document Object Model:管理我们的文档,增删改查规则
+
+* HTML DOM 树
+
+    * 元素-->属性-->文本
+
+    * 元素,属性,文本统称为节点
+
+![](media/15488155072875/15489018550893.gif)
+
+* HTML中的常用DOM操作
+
+    * 一些常用的HTML DOM方法
+
+    ```test
+    getElementById() - 获取带有指定id的节点(元素)
+    appendChild(node) - 插入新的子节点(元素)
+    removeChild(node) - 删除子节点(元素)
+    ```
+    
+    * 一些常用的HTML DOM属性
+
+    ```test
+    innerHTML - 节点(元素)的文本值
+    parentNode - 节点(元素)的父节点
+    childNodes - 节点(元素)的子节点
+    attributes - 节点(元素)的属性节点
+    ```
+    
+    * 查找节点
+
+    ```test
+    getElementById() 返回带有指定ID的元素
+    getElementByTagName() 返回包含带有指定标签名称的所有元素的节点列表(集合/节点数组)
+    getElementsByClassName() 返回包含带有指定类名的所有元素的节点列表
+    ```
+    
+    * 增加节点
+
+    ```test
+    createAttribute() 创建属性节点
+    createElement() 创建元素节点
+    createTextNode() 创建文本节点
+    insertBefore() 在指定的子节点前面插入新的子节点
+    appendChild() 把新的子节点添加到指定节点
+    ```
+    
+    * 删除节点
+
+    ```test
+    removeChild() 删除子节点
+    replaceChild() 替换子节点
+    ```
+    
+    * 修改节点
+
+    ```test
+    setAttribute() 修改属性
+    setAttributeNode() 修改属性节点
+    ```

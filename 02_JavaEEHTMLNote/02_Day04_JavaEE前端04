@@ -1,0 +1,133 @@
+# 02_Day04_JavaEE前端技术04
+
+[TOC]
+
+## 01_JQuary(留意ECMAScript 6)
+
+    * JQuary的作用:为了使代码更加简单,是javaScript的代码库
+
+    ```html
+    <script>
+        //文档加载事件,文档一加载就触发函数
+        $(document).ready(function(){
+            //按钮触发事件,按钮一按下就触发韩式
+            $("#anniu").click(function(){
+                //文本修改事件
+                $("#JQtest").html("修改了码");
+            });
+        });
+    </script>
+    ```
+
+* JQ与JS之间对象的相互转换
+
+    * JS对象转JQ
+
+    ```script
+    function changeTest(){
+        var test01=document.getElementById("JQtest");
+        //test01.innerHTML="我是js";
+        $(test01).html("js转为jq对象");
+    }
+    ```
+    
+    * JQ对象转JS
+
+    ```script
+    $(document).ready(function(){
+        $("#anniujq").click(function(){
+            //将JQ对象转换为JS对象的数组形式
+            var jq=$("#JQtest");
+            //因为只有一条文档,因此是jq[0]
+            jq[0].innerHTML="jq转换为js对象";
+        });
+    });
+    ```
+
+## 02_JQ的动画效果
+
+* 图片的隐藏与显示
+
+   * $(selector).hide(speed,callback);隐藏
+
+   * $(selector).show(speed,callback);显示
+
+   * speed 参数规定隐藏/显示的速度，可以取以下值："slow"、"fast" 或毫秒。callback 参数是隐藏或显示完成后所执行的函数名称。
+
+    ```script
+    <script>
+        //隐藏
+        $(function(){
+            $("#button2").click(function(){
+                $("#img1").hide();
+            });
+        });
+        //显示
+        $(function(){
+            $("#button1").click(function(){
+                $("#img1").show();
+            });
+        });
+    </script>
+    ```
+    
+* 常见动画
+
+    * 淡入谈出
+
+        * $(selector).fadeIn(speed,callback);淡入已隐藏的元素,显示
+
+        * $(selector).fadeOut(speed,callback);谈出可见元素,隐藏
+
+    * 滑动
+
+        * $(selector).slideDown(speed,callback);向下滑动元素
+
+        * $(selector).slideUp(speed,callback);向上滑动元素
+
+    * 动画
+
+        * $(selector).animate({params},speed,callback);
+
+        * 必须的params 参数定义形成动画的 CSS 属性。speed 参数规定效果的时长。它可以取以下值："slow"、"fast" 或毫秒。callback 参数是动画完成后所执行的函数名称。
+
+## 03_JQ中的选择器
+
+* ID选择器:#id
+
+* 类选择器:.类名
+
+* 元素选择器:标签的名称
+
+* 通配符选择器:*
+
+* 分组选择器:选择器1,选择器2
+
+* 层级选择器
+
+    * 子元素选择器:选择器1>选择器2
+
+    * 后代选择器:选择器1 儿孙
+
+    * 相邻兄弟选择器:选择器1+选择器2:找出相邻的一个弟弟
+
+    * 找出所有弟弟:选择器1~选择器2:找出所有的弟弟
+    
+* 属性选择器:适用于:<a href=""></a>
+
+* 表单选择器:适用于:<input type="text" name="" id="">
+
+* :nth-Child(int) ???
+
+## 04_JQ的常用文档操作
+
+* append:添加子元素
+
+* appendTo:找个爹,把自己添加过去
+
+* prepend:在子元素前面添加
+
+* after:在自己的后面添加一个兄弟
+
+
+
