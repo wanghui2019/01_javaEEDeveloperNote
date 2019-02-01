@@ -1,0 +1,88 @@
+# 02_Day05_JavaEE前端技术05
+
+[TOC]
+
+## 01_表单校验案例
+
+* 技术分析
+
+    * trigger()与triggerHandler()
+
+        * trigger(),触发被选中的指定’事件‘类型,被触发的事件会被选中
+
+        * triggerHandler(),触发被选中的指定事件类型
+
+## 02_JSON
+
+* JSON(JavaScript Object Notation)是一种轻量级的数据交换格式.它基于ECMAScript的一个子集.JSON采用完全独立于语言的文本格式.易于机器解析与生成(一般用于提升网络传输速率)
+
+* JSON格式
+
+    * JSON对象
+
+    ```json
+    //{ key1:value},存的是键值对
+    {"username":"zhangsan","password":"123"}
+    ```
+    
+    * JSON数组
+
+    ```json
+    //数组里存的是JSON对象
+    [{ key1:value},{ key2:value},{ key3:value},]
+    ```
+    
+## 03_BootStrap
+
+* BookStrap是一种前端框架,基于HTML,CSS,JavaScript
+
+* 起步阶段:
+
+    * 引入文件
+
+    ```html
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    
+    <!-- 在引入 Bootstrap 核心 之前要先引入JQuert文件 -->
+    
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    ```
+    
+* BootStrap珊格系统
+
+![未命名](media/15489950654630/%E6%9C%AA%E5%91%BD%E5%90%8D.png)
+
+* 表示一个在中等屏幕显示12格,在小屏幕显示6格,在超小屏幕显示4格的代码,一行的珊格之和必须为12
+
+```html
+<div class="container">   <!--class="container"是必须有的-->
+    <div class="row">     <!--class="row"为设置一行,也是必须有的-->
+        <div class="col-md-1 col-sm-2 col-xs-3">.col-md-1</div>
+        <div class="col-md-1 col-sm-2 col-xs-3">.col-md-1</div>
+        <div class="col-md-1 col-sm-2 col-xs-3">.col-md-1</div>
+        <div class="col-md-1 col-sm-2">.col-md-1</div>
+        <div class="col-md-1 col-sm-2">.col-md-1</div>
+        <div class="col-md-1 col-sm-2">.col-md-1</div>
+        <div class="col-md-1">.col-md-1</div>
+        <div class="col-md-1">.col-md-1</div>
+        <div class="col-md-1">.col-md-1</div>
+        <div class="col-md-1">.col-md-1</div>
+        <div class="col-md-1">.col-md-1</div>
+        <div class="col-md-1">.col-md-1</div>
+    </div>
+</div>
+```
+
+## 04_全局CSS组件样式
+
+* 查BootStrap官网
+
+## 05_组件
+
+* 查BootStrap官网
+
+## 06_JavaScript插件
+
+* 查BootStrap官网
