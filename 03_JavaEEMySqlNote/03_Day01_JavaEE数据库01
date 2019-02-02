@@ -1,0 +1,396 @@
+# 03_Day01_JavaEE数据库01
+
+[TOC]
+
+## 01_常见的数据库
+
+* 关系性数据库
+
+    * MySql:开源免费数据库,sun公司的,但sun公司被oracle公司收购了,收购后的版本就收费了,适用于中小型企业
+
+    * mariadb:由MySql创始人搞出来的,直接是MySql开源版本的一个分支,免费,命令基本和MySql命令一样
+
+    * oracle:收费软件,适用于大型电商网站
+
+    * db2:IBM公司,银行大多数采用
+
+    * SQLsever:Windows里面的数据库
+
+* 非关系型数据库:key:value
+
+    * mongodb:
+
+    * redis:
+
+## 02_关系型数据库的E-R关系图
+
+* E-R图也称实体-联系图(Entity Relationship Diagram)，提供了表示实体类型、属性和联系的方法，用来描述现实世界的概念模型。
+
+* 表示方式
+
+    * 实体:方框
+
+    * 属性:椭圆
+
+    * 联系:菱形
+
+## 03_安装和卸载mysql
+
+* ubuntu16.04下卸载mysql
+
+    * 删除mysql的数据文件
+
+    `sudo rm /var/lib/mysql/ -R`
+    
+    * 删除mysql的配置文件
+
+    `sudo rm /etc/mysql/ -R`
+    
+    * 自动卸载mysql（包括server和client）
+
+    `sudo apt-get autoremove mysql* --purge `
+    
+    `sudo apt-get remove apparmor`
+
+    * 检查是否卸载干净
+
+    `dpkg -l | grep mysql      # 若没有返回，说明已完成卸载`
+    
+* 安装mysql
+
+    * 安装mysql
+
+    `sudo apt-get update`
+    
+    `sudo apt-get install mysql-server`
+    
+    * 配置mysql
+
+    `mysql_secure_installation`
+    
+* 修改mysql的编码方式
+
+    * 查看mysql的编码方式,先进入mysql,然后输入
+
+    `show variables like ‘%character%‘;`
+    
+    * 1.退出mysql,在命令行输入下面命令,打开第一个配置文件
+
+    `sudo vim /etc/mysql/conf.d/mysql.cnf`
+    
+    在[mysql]的标签下一行添加下面的配置文件
+    
+    `default-character-set=utf8`
+     
+    * 2.输入下面的命令,打开第二个配置文件
+
+    `sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf`
+    
+    找到[mysqld]标签,在其下一行添加下面的配置
+    
+    `character-set-server=utf8`
+    
+    * 3.重启mysql服务
+
+    `sudo service mysql restart`
+    
+## 04_MYSQL 的SQL语句
+* SQL：Structure Query Language结构化查询语言
+
+	* DDL：数据定义语义：定义数据库，数据表它们的结构：create（创建），drop（删除），alter（修改）
+	
+	* DML：数据库操纵语言：主要用来操作数据：insert（插入），update（修改），delete（删除）
+	
+	* DCL：数据库控制语言：定义访问权限，取消访问权限，安全设置 grant
+	
+	* DQL：数据查询语言：select（查询），form子句，where子句
+	
+## 05_数据库的CRUD的操作
+
+* 首先要登录数据库服务器：mysql -uroot -proot
+
+* 创建数据库
+
+```sql
+create database 数据库的名字;
+create database wanghui;
+
+create database 数据库的名字 character set 字符集;
+create database wanghui character set utf8;
+
+create database 数据库的名字 character set 字符集 collate 校对规则;
+create database wanghui character set utf8 collate utf8_bin;
+```
+
+* 查看数据库
+
+```sql
+--查看所有的数据库
+show databases;
+
+--查看数据库定义的语句
+show create database 数据库的名字
+show create database wanghui;
+```
+* 修改数据库
+
+```sql
+--修改数据的字符集
+alter database 数据库的名字 character set 字符集;
+alter database wanghui character set gbk;   //将其字符集改为gbk
+```
+
+* 删除数据库
+
+```sql
+drop database 数据库名字;
+drop database wanghui;
+
+drop database test;  //test是测试数据库，可以删除
+```
+
+* 其它数据库操作命令
+
+```sql
+--切换数据库（选中数据库）
+use 数据库名字
+use 王辉;
+--查看以下当前正在使用的数据库
+select database();
+```
+
+## 06_创建表
+
+```sql
+create database 数据库的名字     //先创建数据库
+
+create table 表名(
+	列名 列的类型（长度） 约束，
+	列名2 列的类型（长度） 约束
+);
+
+列的类型（和java对比）
+java                sql
+int                 int
+char/string         char/varchar
+                    char：固定长度
+                    varchar：可变长度
+                    char(3):假如存个字符“王”  存的方式为：王 空格 空格
+                    varchar(3):假如存个字符“王” 存的方式为：王 
+                    长度代表的是字符的个数
+double              double
+float               float
+boolean             boolean
+date                date：YYYY-MM-DD
+                    time：hh：mm：ss
+                    datetime：YYYY-MM-DD hh：mm：ss 默认值为null
+                    timestamp：YYYY-MM-DD hh：mm：ss 默认值为当前时间
+                    
+                    text：主要用来存放文本
+                    blob：存放的是二进制
+                    
+列的约束：
+主键约束：primary key     //=唯一约束+非空约束
+唯一约束：unique
+非空约束：not null
+```
+
+## 07_修改表
+
+* 查看表
+ 
+```sql
+--查看所有的表
+	show tables;
+--查看表的创建过程
+	show create table 表名;
+--查看表的结构
+	desc student;
+```
+
+* 修改表
+
+```sql
+先创建一个表：
+create database wanghui    
+
+create table student(
+    xuehao int primary key,
+	name varchar(3) not null,
+	sex int not null,
+	age int
+);
+
+添加列：add
+alter table 表名 add 列名 列的类型 列的约束;
+alter table student add grade int not null;
+
+修改列：modify
+alter table student modify sex varchar(2);
+
+修改列名：change
+alter table student change name mingzi varchar(5);
+
+删除列：drop
+alter table student drop grade;
+
+
+修改表明：rename
+rename table student to xiaohuihui;   //表明一般不做修改
+//修改后可以使用show tables;查看
+修改表的字符集
+alter table xiaohuihui character set gbk;
+```
+
+* 删除表
+
+```sql
+drop table 表名
+```
+
+Xmind8   //百度以下看看啥东西
+
+## 08_表中插入数据
+
+```sql
+insert into 表名（列名1,列名2,列名3...） values（值1,值2,值3...）;
+insert into student(xuehao,name,sex,age) values(3114040001719,'王辉',1,25);
+
+--简单写法：如果插入的是全列名的数据，表名后面的列名可以以省去
+insert into 表名 values（值1,值2,值3...）;
+insert into student values(3114040001719,'王辉',1,25);
+--注意，如果插入的是部分列，表名不能省去。
+insert into student(name,age) values('王辉'，25);
+
+--批量插入
+insert into student values
+(311404001710,'赵航',1,23)，
+(311404001718,'陈华南',1,23)，
+(311404001702,'大S',0,23);
+
+--查看表中数据
+select * from student; 
+```
+
+## 09_删除表中数据
+
+```sql
+delete from 表名 [where 条件]
+delete from student where xuehao=4;   //删除一条
+delete feom student;                  //一条一条的全部被删除
+
+delete与truncate的区别
+delete属于DML，是一条一条的删除
+truncate属于DDL，是删除整个表格然后重建
+数据少时，delete效率高，数据多时，truncate效率高。
+```
+
+## 10_更新表的记录
+
+```sql
+update 表名 set 列名=列的值，列名2=列的值2 [where 条件]
+--将xuehao为311的名字改为aaa
+update student set name='aaa' where xuehao=311;
+
+update studnt set name='aaa',age=23;    //不设置where条件，则被全改。
+```
+
+## 11_查询记录
+
+```sql
+--简单查询
+	select * from product;
+----查询商品名称和商品价格
+	select pname,price from product;
+	
+----别名查询。 as的关键字，as关键字可以省略
+	--表别名：select p.pname，p.price from product p;（注意用在多表查询）
+	select p.pname，p.price
+	from product as p;
+	--列别名：select pname as 商品名称，price as 商品价格 from product;
+	select pname as 商品名称，price 商品价格 from pruduct;
+	
+----去掉重复的值
+	--查询商品所有的价格
+	select price from product;
+	select distinct price from product;
+	
+----select运算查询：仅仅在查询结果上做了运算+ - * /
+	select *,price*1.5 from product;
+	select *,price*0.8 as 折后价 from product;
+	
+----条件查询 [where关键字]
+	指定条件，确定要操作的记录
+	
+----查询商品价格60元的所有商品信息
+	select * from product where price > 60;
+	
+----where后的条件写法
+	--关系运算符：> >= < <= = != <>
+	<>:不等于   ：标准SQL语法
+	!=:不等于   ：非标准SQL语法
+	两则运算结果是一样的
+	
+	--逻辑运算：and，or，not   还有一个between...and...介于两则之间
+	例如：查询商品价格在10～100之间的商品
+	select * from product where price between 10 and 100;
+	select * from product where price > 10 and price < 100;
+	
+	--like：模糊查询
+	_ :代表的是一个字符
+	% ：代表的是多个字符
+	例如：查询商品中带有‘饼’的商品
+	select * from product where pname like '%饼%';
+	查询商品中第二个字是‘熊’的商品
+	select * from product where pname like '_熊%';
+	
+	--in：在某个范围内获得值
+		--查询出商品分类ID在1,4,5里面的所有商品
+		select * from product where fenlei in(1,4,5);
+	
+----排序查询：order by 关键字
+	--asc：ascend 升序（默认的排列方式）
+	--desc：descend 降序
+	例如：查询名称中有‘小’的商品，并按照价格升序
+	1,查询名称中有‘小’的商品
+	select * from product where pname like '%小%';
+	2,按照价格升序
+	select * from product where pname like '%小%' order by price asc;
+	
+----聚合函数
+	sum():求和
+	avg():求平均值
+	count():统计数量
+	max():最大值
+	min():最小值
+	--1：获得所有商品的价格的总和
+	select sum(price) from product;
+	--2:获得所有商品的个数
+	select count(*) from product;
+	注意：where后面不能跟聚合函数
+	
+----分组：group by
+	--1 根据fenlei字段分组，分组后统计商品的个数
+	select cno，count(*) from product group by fenlei;
+	--2 根据fenlei分组，分组统计每组商品的平均价格，并且商品价格>60;
+	select fenlei,avg(price)
+	from product group by fenlei
+	having avg(price) > 60;
+	合并为：
+	select fenlei,avg(price) from product group by fenlei having avg(price) > 60;
+	
+	--having 关键字 可以接聚合函数 出现在分组之后
+	--where 关键字 它是不可以接聚合函数 出现在分组之前
+	
+----编写顺序
+	-- S..F..W..G..H..O
+	select..from..where..group by..having..order by
+	
+----执行顺序
+	-- F..W..G..H..S..O
+	from..where..group by..having..select..order by
+	
+```
+
+
+    
