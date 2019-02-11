@@ -1,0 +1,170 @@
+# 03_Day03_JavaEE数据库03
+
+[TOC]
+
+## 01_JDBC
+
+* JAVA Database Connectivity java与数据库之间的链接
+
+* 出现的原因
+
+    * 因为数据库总类比较多,java又比较流行,所有sun公司有了jdbc用于将java与数据库连接
+
+## 02_JDBC写法入门
+
+* 1.注册驱动
+
+`Class.forName("com.mysql.jdbc.Driver");`
+
+* 2.连接数据库,并获得连接对象
+
+`conn = DriverManager.getConnection("jdbc:mysql://localhost/product", "root", "123456");`
+
+* 3.得到statement对象,连接mysql必须执行的
+
+`st = conn.createStatement();`
+
+* 4.执行sql语句,根据sql语句执行相应操作
+
+```java
+String sql="select * from Product";
+rs = st.executeQuery(sql);
+```
+
+* 5.遍历
+
+```java
+while(rs.next()) {
+		String name = rs.getString("name");
+		int price = rs.getInt("price");
+		String place = rs.getString("place");
+		int id = rs.getInt("id");
+		System.out.println(name+" "+price+" "+place+" "+id);
+}
+```
+
+* 6.关流释放资源
+
+`Release.releaseMethod(rs, st, conn);`
+
+* 关流释放资源的写法
+
+```java
+private static void closeConn(Connection conn) {
+	try {	
+		if(conn!=null) {   
+			conn.close();
+		}
+	} catch (SQLException e) {	
+		e.printStackTrace();
+	}finally {
+		conn=null;
+	}
+}
+```
+
+* 配置文件内容
+
+```java
+url = jdbc:mysql://localhost/product
+user = root
+password = 123456
+```
+
+* 配置文件写法
+
+```java
+//写在静态代码块里,类一加载就创建
+static {
+		//创建配置文件对象
+		Properties prop=new Properties();
+		//数据流将配置文件信息加载进来
+		try {
+			prop.load(new FileInputStream("jdbc.properties"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		url=prop.getProperty("url");
+		user=prop.getProperty("user");
+		password=prop.getProperty("password");
+	}
+```
+
+## 03_JDBC下的增删改查操作
+
+* 使用单元测试测试代码
+
+    * 1.定于一个类TestXXX,里面定义方法testxxx
+
+    * 2.添加junit的支持
+
+        右键工程 ---> add library ---> Junit ---> Junit4
+        
+    * 3.在方法的上面加上注释,其实就是一个标记
+
+        @test
+        public void testQuary(){
+            ...
+        }
+        
+    * 4.光标选中方法名字,然后右键执行单元测试.或者打开outline视图,然后选择方法右键执行
+
+* 查询
+
+```java
+String sql="select * from Product";
+rs = st.executeQuery(sql);
+```
+
+* 增加,修改,删除
+
+    `rs = st.executeUpdate(sql);`
+    
+## 04_Dao模式
+
+* Data Access Object 数据访问对象
+
+* 步骤
+
+    * 1.定义一个Dao的接口,里面神明数据库访问规则
+
+    * 2.新建一个Dao的实现类,实现早前定义的Dao接口里的规则
+    
+* 作用:方便维护与任务分配执行
+
+## 05_statement与prepareStatement的安全问题
+
+* statement在用户登陆中存在的安全问题
+
+```java
+String sql="select * from product where username='"+username+"' and password='"+password+"'";
+rs = st.executeQuery(sql);
+```
+
+* 代码分析:
+
+    * `String sql="select * from product where username='"+username+"' and password='"+password+"'";`
+
+    * 该代码相当于是`String sql="select * from product where username='"`+ username + `"' and password='"` + password + `"'";`这是sql语句的拼接形式.该代码存在的安全问题是:
+
+        * 用户如果早语句后面输入`or 1=1`,即使密码输入不对也能登陆,这是因为sql把or当成了sql语句,而不是字符串
+
+* perpareSteatement在登陆中安全问题的解决方案
+
+```java
+//1.注册驱动
+conn=Release.getConn();
+//2.先写sql语句
+String sql="select * from product username=? and password=?";
+//3.将sql语句先放入prepareStatement语句中保证出来?外其它都是sql语句,即保证?一定是字符串
+PreparedStatement ps = conn.prepareStatement(sql);
+//4.设置第一个为用户名,第二个为密码
+ps.setString(1, username);
+ps.setString(2, password);
+//5.查询
+rs = ps.executeQuery();
+```
+    
+      

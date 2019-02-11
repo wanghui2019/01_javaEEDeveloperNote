@@ -1,0 +1,101 @@
+# 03_Day02_JavaEE数据库02
+
+[TOC]
+
+## 01_多表操作
+
+* 首先创建两个表
+
+```sql
+create database testone character set utf8;
+use testone;
+--表一：
+create table category(
+	序号 int primary key auto_increment,
+	分类名称 varchar(10) not null,
+	说明 varchar(30)
+);
+
+insert into category values(null,'手机数码','绝对正品');
+insert into category values(null,'鞋靴箱包','绝对低价');
+insert into category values(null,'香烟酒水','82年酿造');
+insert into category values(null,'酸奶饼干','绝对新鲜');
+insert into category values(null,'小吃零食','辣条,瓜子,巧克力');
+
+
+--表二：
+create table product(
+	序号 int primary key auto_increment,
+	商品名称 varchar(10) not null,
+	商品价格 int not null,
+	生产日期 timestamp,
+	保质期 varchar(20) not null,
+	所属分类 int
+);
+
+insert into product values(null,'小米6x','1599',null,'无','1');
+insert into product values(null,'oppo','1100',null,'无','1');
+insert into product values(null,'黄鹤楼','99',null,'5年','3');
+insert into product values(null,'茅台酒','599',null,'无','3');
+insert into product values(null,'泸州老窖酒','288',null,'无','3');
+insert into product values(null,'蒙牛','1599',null,'6个月','4');
+insert into product values(null,'卫龙辣条','3',null,'3个月','5');
+insert into product values(null,'德芙巧克力','19',null,'2年','5');
+```
+
+## 02_多表之间关系的维护
+
+```sql
+--外键约束：foreign key
+	给product中的‘所属分类’添加一个外键约束
+	alter table product add foreign key(所属分类) references category(序号);
+
+--从分类表中删除序号为5的信息
+	delete from category where 序号=5;     //删除失败
+	首先得去product表删除所有所属分类为5的商品
+		
+```
+
+* 建表原则：
+
+	* 一对多：
+	
+		* 建表原则：在多的地方增加一个外键，指向一的一方
+		
+	* 多对多：
+	
+		* 建表原则：将多对多转成一对多的关系，创建一张中间表
+		
+	* 一对一：
+	
+		* 建表原则：将两张表合并成一张表
+		
+			* 将两张表的主键建立起关系
+			
+			* 将一对一当成一对多去处理 
+    
+```sql
+----交叉链接查询  笛卡尔积
+	select * from product,category;   //查出来的是两张表的乘积，结果没有意义
+	
+----内链接查询
+	--隐式内链接
+		select * from product p,category c where p.序号=c.所属分类;
+	--显式内链接
+		select * from product p inner join category c on p.序号=c.所属分类;
+	--两则区别：
+	隐式内链接：在查询出结果的基础上去做where条件的过滤
+	显式内链接：带着条件查询结果，执行效率要高。
+	
+	--左外链接，会将左表中的所有数据都查询出来，如果右表中没有对应的数据，用null代替
+	select * from product p left outer join category c on p.序号=c.所属分类;
+	
+	--右外链接，会将右表中的所有数据都查询出来，如果左表中没有对应的数据，用null代替
+	select * from product p right outer join category c on p.序号=c.所属分类;
+	
+	--分页查询：limit
+	每页数据3个，起始索引从0开始
+	select * from product limit 0,3;
+	//此除应该使用java中的语法实现
+```
+
