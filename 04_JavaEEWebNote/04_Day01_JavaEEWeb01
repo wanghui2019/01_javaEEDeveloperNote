@@ -1,0 +1,316 @@
+# 04_Day01_JavaEEWeb01
+
+[TOC]
+
+## 01_Xml
+
+* extendsible markup language. 可扩展的标记语言
+
+* Xml的作用
+
+    * 1.保存数据
+
+    * 2.做配置文件
+
+    * 3.数据传输载体
+
+* xml书写格式
+
+```xml
+<!--version:解析时使用什么版本的解析器解析-->
+<!--encoding: 编码方式-->
+<!--standalone: no 该文档会依赖关联其它文档   yes 这是一个独立的文档-->
+<?xml version="1.0" encoding="gbk" standalone="no" ?>
+<stu>
+    <name>zhangsan</name>
+    <age>20</age>
+</stu>
+```
+
+* 标签规则
+
+    * 标签可以自己定义,但要遵循以下规则
+
+        * 名称可以包含字母,数字以及其他的字符
+
+        * 名称不能以数字或者标点符号开始
+
+        * 名称不能以字符xml开始
+
+        * 名称不能包含空格
+
+* 元素的定义 <元素名称 属性名称=“属性的值”></元素名称>
+
+```xml
+<stus>
+    <stu id="10086">
+        <name>章三</name>
+        <age>19</age>
+    </stu>
+    <stu id="10087">
+        <name>里斯</name>
+        <age>20</age>
+    </stu>
+</stus>
+```
+
+* CDATA
+
+    * CDATA的作用
+
+        * CDATA内部所有东西都会被解析器忽略
+
+        ```xml
+        <stu id="10087">
+		      <name>李四&lt;</name>
+		      <age><a href="http://www.baidu.com">20</a></age>
+		      <age><![CDATA[<a href="http://www.baidu.com">20</a>]]></age>
+	     </stu>
+        ```
+    
+    * '<'和‘&’号是违法的,可以使用“&lt;” 和“&amp;”代替
+
+## 03_xml的解析
+
+* 常用的两种解析方式:DOM和SAX
+
+![DOM&SAX](https://i.loli.net/2019/02/12/5c62391acc8e9.png)
+
+## 04_使用dom4j解析读取xml
+
+* 添加dom4j-1.6.1.jar的jar包
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<stus>
+	<stu id="10086">
+		<name>张三</name>
+		<age>19</age>
+	</stu>
+	<stu id="10087">
+		<name>李四&lt;</name>
+		<age><a href="http://www.baidu.com">20</a></age>
+		<age><![CDATA[<a href="http://www.baidu.com">20</a>]]></age>
+	</stu>
+</stus>
+```
+
+```java
+//1.创建sax读取对象
+SAXReader reader=new SAXReader();
+try {
+	//2.根据文本路径得到xml文本
+	Document docu = reader.read(new File("src/test01.xml"));
+	//3.得到根元素
+	Element rootElement = docu.getRootElement();
+	//4.得到根根元素
+	Element element = rootElement.element("stu");
+	//获取stu后面的id属性内的内容
+	System.out.println(element.attribute("id").getText());
+	//5.得到name元素里的文本内容
+	String massage = element.element("name").getText();
+	//6.打印输出
+	System.out.println(massage);
+	/*
+	//遍历输出
+	//遍历输出
+	List<Element> elements = rootElement.elements();
+	for (Element eveelement : elements) {
+		String name = eveelement.element("name").getText();
+		String age = eveelement.element("age").getText();
+		System.out.println(name+" "+age);
+	}
+	*/
+} catch (DocumentException e) {
+	e.printStackTrace();
+}
+```
+
+## 05_Xpath
+
+* 作用:方便dom4j进行路径的快速寻找
+
+* 添加jaxen-1.1-beta-6.jar的jar包
+
+* /A:表示第一层的A元素。/A/B:表示A层下的B元素。...
+
+* //A:表示所有层的A元素
+
+```java
+//selectSingleNode只能获取一个节点
+Element element1 = (Element)rootElement.selectSingleNode("//name");
+System.out.println(element1.getText());
+//对name进行遍历
+List<Element> list=rootElement.selectNodes("//name");
+for (Element eveelement : list) {
+	System.out.println(eveelement.getText());
+}
+```
+
+## 06_XML的约束
+
+* DTD约束
+
+    * 语法自成一派,早期就出现了,可读性差
+
+    ```dtd
+    <!ELEMENT stus (stu)>
+    <!ELEMENT stu (name,age)>
+    <!ELEMENT name (#PCDATA)>
+    <!ELEMENT age (#PCDATA)>
+    ```
+    
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!--第一种约束方式:网络约束-->
+    <!--文档类型 根标签名称  网络上的dtd  dtd的名称  dtd的路径 -->
+    <!--<!DOCTYPE stus PUBLIC "//UNKNOWN/" "unknown.dtd">-->
+    <!--第二种约束方式:本地约束-->
+    <!--应用本地的DTD :根标签名称  引入本地的DTD  dtd的位置  -->
+    <!--<!DOCTYPE stus SYSTEM  "test01.dtd">-->
+    <!--第三种约束方式:在XML文档里直接嵌入DTD约束-->
+    <!--在XML文档里面直接嵌入DTD的约束法则  -->
+    <!DOCTYPE stus [
+	   <!ELEMENT stus (stu)>
+	   <!ELEMENT stu (name,age)>
+	   <!ELEMENT name (#PCDATA)>
+	   <!ELEMENT age (#PCDATA)>
+    ]>
+    <stus>
+	   <stu>
+		  <name>张三</name>
+		  <age>19</age>
+	   </stu>
+    </stus>
+    ```
+    
+    * 讲解DTD
+
+    <!ELEMENT stus (stu)+>:代表stus下可以出现一个或多个stu,如果没有+,则只能有一个.*:代表0个或多个.?:代表0个或1个
+    <!ELEMENT stu (name,age)>:代表stu下有一个name,一个age,顺序不能乱
+    <!ELEMENT name (#PCDATA)>
+    <!ELEMENT age (#PCDATA)>
+    <!ATTLIST stu id CDATA #IMPLIED>:stu有一个属性文本类型,该属性可有可无
+
+    <!ELEMENT stu (name|age)>:只能有一个
+* Schema约束
+
+    * 其实就是一个xml,使用xml的语法规则,xml解析起来比较方便,是为了替换DTD;但是Schema约束文本内容比DTD的内容还要多,所以目前还没有真正意义的替代DTD
+
+    ```xsd
+    <?xml version="1.0" encoding="UTF-8"?>
+    	<!-- xmlns : xml namespace:名称空间,schema遵循W3C的规则 -->
+    	<!-- targetNamespace:目标名称空间,下面定义的元素都与这个名称空间绑定上 -->
+    	<!-- elementFormDefault:元素的格式化情况 -->
+    <schema
+    	xmlns="http://www.w3.org/2001/XMLSchema" 
+    	targetNamespace="http://www.xiaohuihui.com/test02" 
+    	xmlns:tns="http://www.xiaohuihui.com/test02" elementFormDefault="qualified">
+    	<!-- 这是一个复杂元素 -->
+    	<element name="teachers">
+    		<complexType>
+    			<sequence>
+    				<!-- 这是一个复杂元素 -->
+    				<element name="teacher">
+    					<complexType>
+    						<sequence>
+    							<!-- 这是一个简单元素 -->
+    							<element name="name"></element>
+    							<element name="age"></element>
+    						</sequence>
+    					</complexType>
+    				</element>
+    			</sequence>
+    		</complexType>
+    	</element>
+    </schema>
+    ```
+    
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!-- xmlns:xsi:这里必须这样写,表示这是个参考实例 -->
+    <!-- xmlns:这里是名称空间,也固定了.写的是schema里面的顶部目标名称空间 -->
+    <!-- xsi:schemaLocation:有两段,前半段是名称空间,也是目标空间的值,后面是约束文档的路径 -->
+    <teachers
+    	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    	xmlns="http://www.xiaohuihui.com/test02"
+    	xsi:schemaLocation="http://www.xiaohuihui.com/test02 test02.xsd">
+    	<teacher>
+    		<name>张三</name>
+    		<age>20</age>
+    	</teacher>
+    </teachers>
+    ```
+    
+## 07_Tomcat
+
+* tomcat的作用:
+
+    * 简单总结下，tomcat是一个中间件，在B/S架构中，浏览器发出的http请求经过tomcat中间件，转发到最终的目的服务器上，响应消息再通过tomcat返回给浏览器。tomcat所做的事情主要有：开启监听端口监听用户的请求，解析用户发来的http请求然后访问到你指定的应用系统，然后你返回的页面经过tomcat返回给用户。
+
+* tomcat目录介绍
+
+    * bin:包含了一些jar,bat文件 
+
+    * conf:tomcat的配置。server.xml  web.xml
+
+    * lib:tomcat运行所需要的jar文件
+
+    * logs:运行的日志文件
+
+    * temp:临时文件
+
+    * webapps:发布到tomcat服务器上的项目,存放在这个目录里
+
+    * work:jsp翻译成java存放地
+
+    
+* 发布项目到tomcat中.假设项目是stu.xml
+
+    * 1.拷贝stu.xml文件到webapps/ROOT底下,在浏览器里访问:
+
+    `http://localhost:8080/stu.xml`
+    
+    或者在webapps下面新建一个文件夹xml,然后把拷贝文件放到这个文件夹下,在浏览器里输入:
+    
+    `http://localhost:8080/xml/stu.xml`
+    
+* 2.配置虚拟路径
+
+使用localhost:8080 打开tomcat首页,在左侧找到tomcat的文档入口,点击进去后,在左侧找到Context入口,点击进入
+
+`http://localhost:8080/docs/config/context.html`
+
+在conf/server.xml找到host元素节点加入以下内容
+
+```xml
+<!--docBase:项目的路径地址 如:D:\xml02\persion.xml
+path:对应的虚拟路径 一定以/打头
+对应的访问方式:http://localhost:8080/a/persion.xml -->
+<Context docBase="D:\xml02" path="/a"></Context>
+```
+
+在浏览器中输入:`http://localhost:8080/a/persion.xml`访问
+
+* 3.配置虚拟路径
+
+在tomcat/conf/catalina/localhost/文件夹下新建一个xml文件,名字可以自己定义
+例如名字为persion.xml
+
+在这个文件里面写入一下内容
+
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<Context docBase="D:\xml02"></Context>
+```
+
+在浏览器上面访问
+`http://localhost:8080/persion/xml`
+
+
+
+
+
+
+
+
