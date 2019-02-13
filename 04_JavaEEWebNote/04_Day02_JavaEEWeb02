@@ -1,0 +1,263 @@
+# 04_Day02_JavaEEWeb02
+
+[TOC]
+
+## 01_http请求数据解析
+
+* 1.请求行
+
+`POST /examples/servlets/servlet/RequestParamExample HTTP/1.1`
+
+* 请求方式:POST,常用的还有SET,HEAD
+
+* 请求的地址路径:/examples/servlets/servlet/RequestParamExample
+
+* 协议的版本类型:HTTP/1.1
+
+* 2.请求体
+
+    * Accept:客户端向服务器端表示.我能支持什么类型的数据
+
+    * Referer:真正请求的地址路径,全路径
+
+    * Accept-Language:支持的语言格式
+
+    * User-Agent:用户代理 向服务器表明,当前来访的客户端信息
+
+    * Content-Type:提交的数据类型.经过urlencoding编码的form表单的数据
+
+    * Accept-Encoding:gzip,deflate:压缩算法
+
+    * Host:主机地址
+
+    * Content-Length:数据长度
+
+    * Connection:Keep-Alive保持连接
+
+    * Cache-Control:对缓存的操作
+
+* 3.请求体
+
+    * 浏览器真正发送给服务器的数据
+
+    发送的数据呈现的是key=value.如果存在多个数据,使用&来连接
+    
+    例如:firstname=zhangsan&lastname=san
+    
+## 02_http响应数据解析
+
+* 1.响应行
+
+`HTTP/1.1 200 OK`
+
+* HTTP/1.1:协议版本
+
+* 200 OK:200是状态码,表示成功.OK与200成对出现,也表示成功
+
+    * 常见状态码:
+
+    403 forbidden:拒绝
+
+    404 NotFound
+    
+    500:服务器异常
+    
+* 响应头
+
+    * Server:服务器是哪一种类型。Apache-Coypte/1.1 是tomcat类型
+
+    * Content-Type:服务器返回给客户端你的内容类型
+
+    * Content-Length:返回的数据长度
+
+    * Date:通讯的日期,响应的时间
+
+* 响应体
+
+    * 最后剩的就是响应体
+
+## 03_Get和Post请求的区别
+
+* get与post图形讲解
+
+![](https://i.loli.net/2019/02/13/5c63977429171.png)
+
+* Post
+
+     * 数据以流的方式写过去,不会在地址栏上面显示,现在一般提交数据都用post
+
+     * 以流的方式写数据,数据没有大小限制
+
+* get
+
+    * 会在地址栏后面拼接数据.所以会有安全隐患,一般从服务器获取,并且客户端也不用提交上面数据的时候,用get
+
+    * 能够带的数据有限,1kb大小
+
+## 04_Web资源
+
+* 与web相关的资源
+
+    * 静态资源
+
+        * html  css   js
+
+    * 动态资源
+
+        * servlet/jsp
+
+## 05_servlet
+
+* servlet其实就是一个java程序,运行在我们的web服务器上,用于接收和响应客户端的http请求
+
+* 更多的是配合动态资源来做.静态资源也需要使用到servlet,只不过是tomcat里面已经定义好了一个DefaultServlet
+
+* 使用Servlet类需要server runtime的类库,需要在工程中引入
+
+    * 1.在工程上右击，选择Build Path>Configure Build Path...打开；
+
+    * 2.点击右侧Add Library...；
+
+    * 3.在出现的窗口中选择Server Runtime，选择Next，选择tomcat，OK；
+
+* web项目创建后WEB-INF下面没有出现web.xml的解决方法
+
+    * 第一步：选取创建的项目名称右击
+
+    * eclipse:找到 java EE Tools中的generate...选项点击
+    
+    * 第三步：再次打开WEB-INF下，就会发现生成了web.xml
+
+* 测试运行web项目
+
+    * 文件
+    
+        * 1.在WebContent下创建一个文件,例如index.html
+        
+        * 2.将项目运行在tomcat服务器上
+
+        * 3.在浏览器里输入http://localhost:8080/04_Day02_JavaEEWeb02/index.html   其中04_Day02_JavaEEWeb02为项目名称
+
+    * java代码
+
+        * 1.在WebContent --> WEB-INF --> lib --> web.xml下配置一下信息
+
+        ```xml
+        <!-- 向tomcat报告,我的应用里有servlet,名字叫helloServet,具体路径是com.day02.servlet.HelloServlet -->
+        <servlet>
+            	<servlet-name>helloServet</servlet-name>
+  	            <servlet-class>com.day02.servlet.HelloServlet</servlet-class>	
+        </servlet>
+        <!-- 注册servlet的映射,servletName:找到上面注册的具体servlet,url-pattern,在地址栏上的路径,以/开头 -->
+        <servlet-mapping>
+  	         <servlet-name>helloServet</servlet-name>
+  	         <url-pattern>/a</url-pattern>
+        </servlet-mapping>
+        ```
+        
+        * 2.发布到tomcat
+
+        * 3.浏览器里输入http://localhost:8080/04_Day02_JavaEEWeb02/a
+
+        > 如果出现500的错误,检查写的HelloServlet类前是否是有public,没有就添上
+
+    * 图解
+
+    ![](https://i.loli.net/2019/02/13/5c63ce9acec1a.png)
+    
+    * servlet的通用写法
+
+        * 定义一个类,继承HttpServlet 重写doGet 和doPost方法
+
+## 06_Servlet的生命周期
+
+* 生命周期所涉及的方法
+
+    * init()方法   1次
+
+        * 一创建servlet实例时就会执行该方法,且只会执行一次,即只初始化一次
+
+    * service()方法 多次
+
+        * 只有客户端来了一次请求,就执行一次这个方法
+
+    * destroy()方法
+
+        * servlet销毁的时候,就会执行这个方法
+
+        * servlet销毁情况
+
+            * 1.项目与tomcat端开链接
+
+            * 2.正常关闭tomcat。 例如打开tomcat里的shutdown.bat文件
+
+            > 在eclipse里点的那个红色按钮是非正常关闭tomcat
+            
+* 如果初始化的内容太多比较占用时间,可以将初始化方法(init())向前稍微提前一些执行
+
+    * 实现方式:只需要在<servlet-class>...的配置内容下面写上`<load-on-startup>2</load-on-startup>`即可.中间的数字越小,提前的越多,一般从2开始(1被占用了),只能为正数.这里的目的是将init()方法的内容提前执行
+
+## 07_ServletConfig
+
+* 1.使用getServletConfig()方法获得ServletConfig对象
+
+* 2.根据对象下的方法获取内容
+
+    * 1.获取web.xml文件servlet-name里的名称`getServletName()`
+
+    * 2.根据init-param元素下的param-name里的键获取param-value里的值`getInitParameter()`
+
+    * 3.获取所有的初始化值`getInitParameterNames()``getInitParameter()`
+
+* 代码
+
+```xml
+<!--xml配置文件-->
+<servlet>
+  	<servlet-name>helloConfig</servlet-name>
+  	<servlet-class>com.day02.servlet.HelloServletConfig</servlet-class>
+  	<!-- init-param用于添加初始化参数 -->
+  	<init-param>
+  		<param-name>name</param-name>
+  		<param-value>张三</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>address</param-name>
+  		<param-value>北京</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>age</param-name>
+  		<param-value>18</param-value>
+  	</init-param>
+</servlet>
+  <!-- 注册servlet的映射,servletName:找到上面注册的具体servlet,url-pattern,在地址栏上的路径,以/开头 -->
+<servlet-mapping>
+    <servlet-name>helloConfig</servlet-name>
+    <url-pattern>/c</url-pattern>
+</servlet-mapping>
+```
+
+```java
+//java运行文件
+ServletConfig config = getServletConfig();
+//该名称是web.xml文件servlet-name里的名称
+String servletName = config.getServletName();
+System.out.println(servletName);
+//根据init-param元素下的param-name里的键获取param-value里的值
+String initParameter = config.getInitParameter("name");
+System.out.println(initParameter);
+//获取配置的初始化文件中所有的键的枚举
+Enumeration<String> initParameterNames = config.getInitParameterNames();
+//遍历
+while (initParameterNames.hasMoreElements()) {
+	//获取键
+	String key = (String) initParameterNames.nextElement();
+	//获取值
+	String value = config.getInitParameter(key);
+	System.out.println("key"+key+"  "+"value"+value);
+}
+```
+
+## 08_总结
+
+![](https://i.loli.net/2019/02/13/5c63ef2cd6a04.png)
