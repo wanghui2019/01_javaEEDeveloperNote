@@ -1,0 +1,326 @@
+# 04_Day03_JavaEEWeb03
+
+[TOC]
+
+## 01_Servlet配置方式
+
+* 可以直接创建servlet类,创建好后web.xml里就自动生成了配置文件信息
+
+* <url-pattern></url-pattern>,针对路径信息,里面有三种路径配置方式
+
+    * 1.全路径匹配.以/开头,例如<url-pattern>/a/b/c</url-pattern>.访问时应该是localhost:8080/项目名称/a/b/c
+
+    * 2.路径匹配.前半段匹配,以/开始,但以\*结束,例如<url-pattern>/a/*</url-pattern>.\*其实是一个通配符,访问时localhost:8080/项目名称/a/任意字符
+
+    * 以扩展名匹配.写法:没有/,以\*开始。\*.扩展名  <url-pattern>*.aa</url-pattern>.  访问时localhost:8080/项目名称/任意字符.aa
+
+## 02_ServletContext
+
+* 获取全局参数
+
+    * 全局配置信息
+
+    ```xml
+    <!-- 这是全局配置信息,任何一个servlet都能获取它的信息 -->
+    <context-param>
+        <param-name>name</param-name>
+  	     <param-value>张三</param-value>
+    </context-param>
+    ```
+    
+    * 获取全局信息代码
+
+    ```java
+    //现获取ServletContext对象
+		ServletContext servletContext = getServletContext();
+		//获取全局信息里的初始化键获取值
+		String value = servletContext.getInitParameter("name");
+		System.out.println("名字是:"+value);
+    ```
+    
+* 获取web工程中的资源
+
+    * 例如获取test.properties配置文件里的name=zhangsan的信息
+
+    * 方法一:使用getRealPath()
+    
+        ```java
+          //获取ServletContext对象
+    		ServletContext servletContext = getServletContext();
+    		//获取真是路径.方法getRealPath()路径能到达到..\项目\WebContent
+    		String path = servletContext.getRealPath("file/test.properties");
+    		//获取配置文件对象
+    		Properties prop=new Properties();
+    		//读取配置文件的流
+    		prop.load(new FileInputStream(new File(path)));
+    		String name = prop.getProperty("name");
+    		System.out.println(name);
+        ```
+        
+    * 方法二:使用getResourceAsStream()
+
+        ```java
+        //获取ServletContext对象
+		  ServletContext servletContext = getServletContext();
+		  //将配置文件转换为流对象
+		  InputStream is = servletContext.getResourceAsStream("file/test.properties");
+		  //获取配置文件对象
+		  Properties prop=new Properties();
+		  //读取配置文件的流
+		  prop.load(is);
+		  String name = prop.getProperty("name");
+		  System.out.println("name="+name);
+		  is.close();
+        ```
+        
+    * 方法三:不使用ServletContext,使用类加载器
+
+        ```java
+        /*
+        ../../file/test.properties路径讲解
+        类加载器的路径到..\项目\WebContent\WEB-INF\classes,而file/test.properties是在..\项目\WebContent下,所以应该使用../../返回到上上目录
+        */
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("../../file/test.properties");
+		  //获取配置文件对象
+		  Properties prop=new Properties();
+		  //读取配置文件的流
+		  prop.load(is);
+		  String name = prop.getProperty("name");
+		  System.out.println("name11="+name);
+		  is.close();
+        ```
+        
+* 存取数据
+
+        ```java
+        /*
+			 * getAttribute("a")用于得到一个初始化为null的a对象,在这里a相当于被定义为了一个共享的对象
+			 * setAttribute("a",b)用于将b的值交给a
+			 * 执行分析:
+			 * 第一次登陆
+			 * 1.先得到一个对象count,定义为obj
+			 * 2.totalcount定义为0
+			 * 3.判断obj是否为null,即是判断count是否为null,最初为null,不执行if内的语句
+			 * 4.因为count最初为null,执行getServletContext().setAttribute("count", totalcount+1);
+			 * 5.totalcount+1变成1,交给count
+			 * 
+			 * 第二次登陆
+			 * 1.count对象是共享的,此时count变为1不为null
+			 * 2.执行if内的语句totalcount变为1
+			 * 3.执行getServletContext().setAttribute("count", totalcount+1);
+			 * 4.totalcount+1变成2,交给count
+			 * 
+			 * ...
+			*/
+	       Object obj = getServletContext().getAttribute("count");
+	       //判断count对象是否为空,如果不为空转换为整型
+	       int totalcount=0;
+	       if (obj!=null) {
+	           totalcount=(Integer) obj;
+           }
+           getServletContext().setAttribute("count", totalcount+1);
+        ```
+        
+* ServletContext的生命周期
+
+    * 服务器启动时,会为托管的每一个web应用程序,创建一个ServletContext对象
+
+    * 当服务器移除托管或者关闭服务器时,ServletContext也会被销毁
+
+* ServletContext的作用范围
+
+    * 只有在同一个项目中,servlet类就能共用ServletContext的内容,不同项目不能共用
+
+> 在html文件中所用的路径都是web.xml中的<url-pattern>里的路径
+
+## 03_HttpServletRequest
+
+* HttpServletRequest包括客户端向服务器请求的所有信息
+
+* request请求头
+
+```java
+//获取头信息
+Enumeration<String> headername = request.getHeaderNames();
+//遍历
+while (headername.hasMoreElements()) {
+	//获取键
+	String headerkey = (String) headername.nextElement();
+	//获取值
+	String headervalue = (String) request.getHeader(headerkey);
+	System.out.println(headerkey+"="+headervalue);
+}
+```
+
+* request请求体
+
+* 第一种方式
+
+    ```java
+    //枚举遍历
+    Enumeration<String> parameterNames = request.getParameterNames();
+    while (parameterNames.hasMoreElements()) {
+    	//获取键
+    	String key = (String) parameterNames.nextElement();
+    	//获取值
+    	String value = request.getParameter(key);
+    	System.out.println(key+"="+value);
+    }
+    ```
+
+* 第二种方式
+
+    ```java
+    //获取map集合对象,因为一个键可以对应多个值,所以此处是<String, String[]>
+	 Map<String, String[]> parameterMap = request.getParameterMap();
+	 //获取键的集合
+	 Set<String> keySet = parameterMap.keySet();
+	 //获取迭代器
+	 Iterator<String> iterator = keySet.iterator();
+	 //遍历
+	 while (iterator.hasNext()) {
+		 String key = (String) iterator.next();
+		 String[] values = parameterMap.get(key);
+		 System.out.println(key+"="+values[0]);
+	 }
+    ```
+    
+## 03_HttpServletRequest的中文乱码问题
+
+> 注意:我使用eclipse时并没有出现乱码的问题,反而如下代码设置后出现了乱码的问题
+
+* 请求方式是GET的情况
+
+    * GET方式放过去的信息是在url地址栏后面,在地址栏上就已经进行编码了,tomcat收到了这批数据后,getParameter默认使用ISO-8859-1去解码
+    
+    * 方法1:
+    
+        ```java
+         String username = request.getParameter("username");
+    		String password = request.getParameter("password");
+    		//先把收到的信息按照ISO-8859-1进行解码为字节
+    		byte[] bytes = username.getBytes("ISO-8859-1");
+    		//再把字节拼接称字符串
+    		username=new String(bytes, "utf-8");
+    		System.out.println("username="+username+"  password="+password);
+        ```
+    
+    * 方法二:
+
+        * 在tomcat里面做设置处理 conf/server.xml 加上URIEncoding="utf-8",具体位置如下
+
+        `<connector connectionTimeout="20000" port="8080" protocol="HTTP/1.1" redirectPort="8443" URIEncoding="utf-8"`
+        
+* 请求是POST的情况
+
+    * post请求是设置请求体里面的文字编码,在获取请求体前先设置编码方式
+
+    `request.setCharacterEnconding("utf-8")`
+    
+## 04_HttpServletResponse的中文乱码问题
+
+* HttpServletResponse用于服务器向客户端响应的信息
+
+```java
+//以字符的形式向客户端写数据
+response.getWriter().write("helloWrite");
+//以字节的形式向客户端写数据
+response.getOutputStream().write("helloOutputStream".getBytes());
+//获取状态码 302为重新向为found
+response.setStatus(302);
+//登陆成功后,跳转到success.html
+response.setHeader("Location", "success.html");
+```
+
+* 字符的形式出现乱码问题的解决方式(这个不解决是真乱码)
+
+    * 注意两方面,一方面是客户端接收时的编码方式.另外一个时浏览器解读时的解码方式
+
+    ```java
+     //指定输出到客户端时,这些文字的编码方式
+		response.setCharacterEncoding("utf-8");
+		//指定浏览器看时使用什么类型的编码器
+		response.setHeader("Content-Type", "text/html;charset=utf-8");
+		//以字符的形式向客户端写数据
+		response.getWriter().write("哈哈");
+    ```
+    
+* 字节的形式出现乱码问题的解决方式
+
+    * 只有向客户端写入的编码方式和客户端浏览器打开的编码方式相同就不会乱码
+
+    ```java
+     //指定浏览器看时使用什么类型的编码器
+		response.setHeader("Content-Type", "text/html;charset=utf-8");
+    //以字节的形式向客户端写数据,默认的getBytes()方式时utf-8,如果向改,可以设置getBytes("编码方式")
+	  response.getOutputStream().write("helloOutputStream".getBytes());
+    ```
+    
+* 不管是字节流还是字符流,使用一行代码就可以执行浏览器看时的编码方式
+
+```java
+//设置响应的数据类型是html,并且告知浏览器,使用UTF-8来编码
+response.setContentType("text/html;charset=utf-8");
+```
+
+## 05_下载
+
+* 1.直接在html文件里点击下载
+
+    * 先把要下载的内容放到./WebContent/download下的文件夹里,然后部署到tomcat服务器上
+    
+    ```html
+    <h1>下载内容</h1>
+    <a href="download/购物图.png">点我下载图片</a>
+    ```
+    
+    * 在html里写上以上内容就可以下载到浏览器上.原因是tomcat里面有一个默认的Servlet --DefaultServlet.这个DefaultServlet专门处于处理放在tomcat服务器上的静态资源
+
+* 2.通过使用servlet下载
+
+* html文件
+
+    ```html
+    <!--
+        Download_Test?massage=购物图.png 讲解
+        Download_Test:xml中<url-pattern>里所指定的路径,用于访问发布到tomcat里的java文件
+        
+        massage=购物图.png:其实相当于时xml的配置信息,只不过没有写在xml里,直接写在了html文件里,因为在路径Download_Test后面,又在html里,所以中间要加“?”,只是一种书写格式
+    -->
+    <h1>下载内容</h1>
+    <a href="Download_Test?massage=购物图.png">点我下载图片</a>
+    ```
+    
+* java文件
+
+    ```java
+      //获取要下载东西的名称
+		String massage = request.getParameter("massage");
+		//根据servletContext获取下载内容的路径
+		ServletContext servletContext = getServletContext();
+		String path = servletContext.getRealPath("download/"+massage);
+		//让浏览器收到资源时,不是直接在浏览器上展示,而是可以选择下载的路径
+		response.setHeader("Content-Disposition", "attachment;massage="+massage);
+		//将要下载的内容转换为流进行下载
+		InputStream is=new FileInputStream(new File(path));
+		OutputStream os = response.getOutputStream();
+		int len;
+		byte[] arr=new byte[1024*8];
+		while((len=is.read(arr))!=-1) {
+			os.write(arr, 0, len);
+		}
+		is.close();
+		os.close();
+    ```
+    
+## 06_总结:
+
+![](https://i.loli.net/2019/02/14/5c654fce50873.png)
+
+
+
+
+
+
+    
+    
