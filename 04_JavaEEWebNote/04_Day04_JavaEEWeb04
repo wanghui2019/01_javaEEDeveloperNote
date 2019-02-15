@@ -1,0 +1,220 @@
+# 04_Day04_JavaEEWeb04
+
+[TOC]
+
+## 01_下载的文件名是中文时的解决方案
+
+* 如果文件的名字带有中文,需要对这个文件名进行编码处理
+
+    * 如果是IE会在Chrome,使用URLEncoding编码
+
+    * 如果是Firefox,使用Base64编码
+
+     ```java
+     //根据请求来的名称获取请求的内容
+		String fileName = request.getParameter("filename");
+		//修改名字编码方式,先将fileName按ISO-8859-1解码,再按照utf-8编码
+		fileName=new String(fileName.getBytes("ISO-8859-1"), "utf-8");
+		//获取来访的客户端类型,即是判断在使用什么浏览器去请求服务器的
+		String clientType = request.getHeader("User-Agent");
+		//如果是火狐浏览器,就使用Base64编码
+		if (clientType.contains("Firefox")) {
+			//DownLoadUtil只是一个自己定义的工具类,火狐有自己的编码规则,写成了工具类
+			filename=DownLoadUtil.base64EncodeFileName(fileName);
+		}else {
+			fileName=URLEncoder.encode(fileName, "utf-8");
+		}
+     ```
+     
+## 02_重定向和请求转发
+
+* 作用:用于跳转页面
+
+* 以前写法
+
+```java
+response.setStatus(302);
+response.setHeader("Location", "download.html");
+```
+
+* 重定向:
+
+    * 写法:`response.sendRedirect("download.html");`
+
+    * 原理:
+
+        * 1,客户端向服务器请求
+
+        * 2.服务器接收请求,然后告诉客户端一个要去重新请求的页面地址
+
+        * 3.客户端再次向服务器请求即将跳转的页面
+
+    * 1.地址栏上显示的是最后的那个资源的路径地址
+
+    * 2.请求的次数最少两次,服务器在第一次请求后,会返回302以及一个地址,浏览器会根据这个地址执行第二次访问
+
+    * 3.可以跳转到任意路径,不是自己的工程也可以跳
+
+    * 4.效率稍微低一点,执行两次请求
+
+    * 5.后续的请求,没法使用上一次的request存储的数据,或者没法使用上一次的request对象,因为是两次不同的请求
+
+* 请求转发:
+
+    * 写法:
+    `request.getRequestDispatcher("download.html").forward(request, response);`
+    
+    * 原理:
+
+        * 1,客户端向服务器请求
+
+        * 2.服务器接收请求后由服务器进行页面的跳转
+
+    * 1.地址栏上显示的是请求servlet的地址
+
+    * 2.请求的次数只有一次,因为是服务器内部帮客户端执行了后续的工作
+
+    * 3.只能跳转自己项目的资源路径
+
+    * 4.效率上稍微高一点,因为只执行了一次请求
+
+    * 5.可以使用上一次的requset对象
+
+## 03_Cookie
+
+* 什么是Cookie
+
+    * 就是一份小数据,是服务器给客户端,并且存储在客户端上的一份小数据
+
+* 为什么会有Cookie
+
+    * 因为http的请求是状态的,即客户端第二次访问服务器时,服务器不知道这个客户端以前有没有访问过.例如登陆账户时,每次访问都有登陆密码,有了Cookie,可以记住这个密码,实现自动登录的功能,Cookie能给用户更好的体验.
+
+* 应用场景
+
+    * 自动登录  浏览记录   购物车
+
+* Cookie原理
+
+    * 代码
+
+      ```java
+      //设置浏览器读取时的编码方式
+		response.setContentType("text/html;charset=utf-8");
+		//创建Cookie对象,"aa", "bb"的键值对自己定义
+		Cookie cookie=new Cookie("aa", "bb");
+		//服务器向客户端添加Cookie
+		response.addCookie(cookie);
+		//客户端得到Cookie
+		Cookie[] cookies = request.getCookies();
+		//遍历之前,先对Cookie[]进行判断,不为空时才能遍历,因为第一次客户端向服务器请求时Cookie[]为空
+		if (cookies!=null) {
+			//遍历
+			for (Cookie cook : cookies) {
+				String name = cook.getName();
+				String value = cook.getValue();
+				System.out.println(name+" "+value);
+			}
+		}
+		//向浏览器写个数据
+		response.getWriter().write("Cookie...");
+      ```
+      
+    * 代码分析:
+
+        * 第一次请求和响应
+
+            * 1.客户端向服务器发出请求
+    
+            * 2.服务器给予响应,同时会将一份Cookie发给客户端,这份Cookie的发送方式会在响应的头文件里出现一个`set-Cookie:aa=bb`
+    
+            * 3.客户端接收服务器的响应,在浏览器上显示Cookie...
+
+        * 第二次请求和响应
+
+            * 1.客户端向服务器发出请求,这份请求里已经携带了Cookie
+
+            * 2.服务器给予响应,服务器接收到的请求里带有Cookie,不为空,所以在控制台上打印出Cookie的键和值
+
+        * 接下来的请求都会在控制台上打印出Cookie的键和值
+
+* Cookie的生命周期
+
+    * Cookie默认关闭浏览器时就会消失,但可以通过代码`cookie.setMaxAge(60*60);`来定义Cookie存在的时间,以秒为单位,60*60表示为1小时.该代码放在Cookie对象一创建的后面
+
+* Cookie的其它常用方法
+
+```java
+//将Cookie中的值"bb"改为"cc"
+cookie.setValue("cc");
+//只有请求了指定的域名,才会带上cookie
+cookie.setDomain("指定域名");
+//访问该域名下的指定项目路径才会带上cookie
+cookie.setPath("/04_Day04_JavaEEWeb04");
+```
+
+* 清除浏览记录
+
+    * 清除浏览记录就是清除Cookie.只有一种方法.设置cookie.setMaxAge(0);
+
+     ```java
+     //创建Cookie对象,键必须和以前的键相同,值可以随便设置,没看懂
+     //Cookie cookie=new Cookie("history", "aa");
+     //这个懂
+     Cookie[] cookies = request.getCookies();
+		Cookie cookie = Select_Cookie.selectCookie(cookies, "history");
+	   cookie.setMaxAge(0);
+		cookie.setPath("/Demo_Project_Test");
+		response.addCookie(cookie);
+		
+		response.sendRedirect("product_list.jsp");
+     ```
+     
+> 似乎执行response.addCookie(cookie);会覆盖掉以前的Cookie
+
+> Cookie缺点:1.Cookie存在与客户端上,可能存在安全隐患.2.Cookie数量有限,每台Web服务器由20个Cookie,总共有300个.并且Cookie大小限定为4KB
+
+## 04_Session
+    
+* Session数据存在于服务器端.其是基于Cookie的一种会话机制
+
+* 常用API
+
+    * 得到会话ID
+
+    `String id=session.getID();`
+    
+    * 向session里存值
+
+    `session.setAttribute(name,value);`
+
+    * 从session里取值
+
+    `session.getAttribute(name);`
+
+    * 移除session里的值
+
+    `session.removeAttribute(name);`
+    
+    * 直接干掉session
+
+    `session.invalidate();`
+    
+* Session的生命周期
+
+    * 创建
+
+        * 如果在Servlet里面调用了request.getSession()就创建了Session
+
+    * 销毁
+
+        * Session是存放于服务器内存中的一份数据.使用Redis可以让其持久化
+
+        * Session销毁的方式
+
+            * 1.关闭服务器
+
+            * 2.session会话时间过期,默认时间为30分钟
+
+> 个人理解:Session相当于一个小容器,里面可以存各种各样的东西,然后Session又被存放于服务器上.   `东西 存 Session里  --> Session 存 服务器里`
+    
