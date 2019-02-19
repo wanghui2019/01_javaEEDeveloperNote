@@ -1,0 +1,348 @@
+# 04_Day05_JavaEEWeb05
+
+[TOC]
+
+## 01_JSP
+
+* Java Server Page:其实就是一个java类,它继承了Servlet,所以可以直接说jsp,就是一个Servlet.用户角度看,其实就是一个动态网页.
+
+* jsp配置信息
+
+    * jsp共三条指令:page,include,taglib
+
+    * page指令
+
+        ```jsp
+        <%@ page language="java" contentType="text/html; charset=UTF-8"
+        pageEncoding="UTF-8" extends="父类" import="包" session="true" errorPage="" isErrorPage="true"%>
+        ```
+        
+        * language="java":语言为java语言,若是php语言或者其它的,可以更改
+    
+        * contentType="text/html; charset=UTF-8":文本类型为文本:html类型,如果是,mp3或者mp4类型的可以更改,编码方式:UTF-8,一般不改
+    
+        * pageEncoding="UTF-8":jsp内容编码
+    
+        * extends="父类":指定jsp被翻译成java文件后,继承的父类是谁,一般不改
+    
+        * import="包":导包使用的,一般不用手写
+    
+        * session="true":值为true表示可以直接使用session对象,为false则不能,默认为true
+    
+        * errorPage="要跳转的界面"与isErrorPage="true"
+    
+            * 这是两个不同的界面,有错误的界面写errorPage="要跳转的界面",isErrorPage="true"是跳转过来的界面,true表示可以跳转过来
+
+    * include指令
+
+        * `<%@ include file="other.jsp"%>`意为这个jsp页面里包含other.jsp页面的内容.静态包含,把页面所有东西全部移过去,该标签位置可以移动
+
+        * 以下方式放置,会先显示other.jsp里的内容,换行,再显示自身jsp里的内容
+        
+        ```jsp
+        <%@ page language="java" contentType="text/html; charset=UTF-8"
+        pageEncoding="UTF-8"%>
+        <%@ include file="other.jsp"%>
+        ```
+    
+        * 以下方式放置,会先显示自身里的内容,换行,再显示自身other.jsp里的内容
+
+        ```jsp
+        </body>
+        </html>
+        <%@ include file="other.jsp"%>
+        ```
+        
+        > 这个位置可以随意放置(非常随意)的,只需考虑在本jsp内容的前面还是后面即可
+        
+    * taglib指令
+
+        * `<%@ taglib prefix="" uri=""%>`
+
+        * prefix="":标签库的别名
+
+        * uri="":标签库路径
+
+## 02_jsp的动作标签
+
+* 常用动作标签
+
+    * 包含其它标签:把其它标签的内容包含进来.动态包含,只移过来内容
+    
+    `<jsp:include page="other.jsp"></jsp:include>`
+    
+    * 前往其它标签:跳转
+    
+	 `<jsp:forward page=""></jsp:forward>`
+	 
+	 * 可以写在<jsp:forward page=""></jsp:forward>标签里,带上param的内容
+	 
+	 `<jsp:param value="" name=""/>`
+	 
+	 * 发送
+	 
+    	 ```jsp
+    	 <jsp:forward page="other.jsp">
+    		<jsp:param value="beijing" name="address"/>
+    	</jsp:forward>
+    	 ```
+    	 
+    * 接收
+
+        ```jsp
+        <%=request.getParameter("address") %>
+        ```
+        
+    > 跳转也可以使用请求转发和重定向的方式:
+    请求转发:
+    `request.getRequestDispatcher("other.jsp").forward(request, response);`
+    重定向:
+    `<%response.sendRedirect("other.jsp"); %>`
+    
+## 03_jsp内置对象
+
+* 九大内置对象,对象可以直接调用,不用创建
+
+    * 内置对象中的四个作用域:用于存值和取值,存值方法setAttribute,取值方法getAttribute
+
+        ```jsp
+        存值
+    	   <%pageContext.setAttribute("name", "pageContext"); %>
+    	   <%request.setAttribute("name", "request"); %>
+    	   <%session.setAttribute("name", "session"); %>
+    	   <%application.setAttribute("name", "application"); %>
+    	   取值<br>
+    	   <%=pageContext.getAttribute("name") %>
+    	   <%=request.getAttribute("name") %>
+    	   <%=session.getAttribute("name") %>
+    	   <%=application.getAttribute("name") %>
+        ```
+    
+    * 四种作用域类型的内置对象的不同点
+
+        * pageContext [pageContext]
+
+        > 作用域仅限于当前的页面,能回去其它八个内置对象,一般不用获取,本身就有对象
+        
+        * request  [HttpServletRequest]
+
+        > 作用域仅限于一次请求,只有服务器对该请求作出了响应,这个域中存的值就没有了
+        
+        * session [HttpSession]
+
+        > 作用域仅限于一次会话中,只有回话还在继续,就可以多次请求与响应
+        
+        * application [ServletContext]
+
+        > 整个工程都可以访问,服务器关闭后就不能访问了
+        
+    * 小知识点:
+
+        * 请求转发是一次请求
+
+        * 重定向是两次请求
+
+        * 关闭浏览器是回话结束
+
+    * 其它五个内置对象
+
+        * 两个响应对象
+
+            * out [JspWriter]
+    
+            * response [HttpServletResponse]
+            
+        ![](https://i.loli.net/2019/02/16/5c678ee479818.png)
+        
+        * 先输出`response.getWriter().Writer("")`里的内容,再输出`out.writer("")`里面的内容
+
+        * 其它三个内置对象
+
+            * exception  [Throwable]
+
+            * page [Object] --就是this.其实就是这个jsp翻译成java类的实例对象
+
+            * config  [ServletConfig]
+
+## 04_EL
+
+* EL的作用:EL只是为了获取JSP文件的内容,代替了JSP获取的功能,只是为了简化JSP的写法
+
+* 格式:${ },EL无法实现遍历
+
+* EL的取值例子.存值都是jsp的四大作用域存的
+
+    * EL取字符
+    
+    ```el
+    ${pageScope.name}
+    ${requestScope.name} 
+    ${sessionScope.name} 
+    ${applicationScope.name}
+    ```
+    
+    * EL取字符数组中的字符串
+    
+    ```el
+    <%
+	  String[] str={"a","b","c","d"};
+	  pageContext.setAttribute("arr", str); 
+	 %>
+	  <!-- arr[i]前的内置对象pageContext可以不写 -->
+	  ${arr[0] },${arr[1] },${arr[2] },${arr[3] }
+    ```
+    
+    * EL获取list集合
+
+    ```el
+    <% 
+	  List<String> list=new ArrayList<String>();
+	  list.add("aa");
+	  list.add("bb");
+	  list.add("cc");
+	  list.add("dd");
+	  request.setAttribute("listarr", list);
+	 %>
+	  ${listarr[0]},${listarr[1]},${listarr[2]},${listarr[3]}
+    ```
+    
+    * EL获取map集合
+
+    ```el
+    <% 
+	  Map<String,Integer> map=new HashMap<String,Integer>();
+	  map.put("aaa",1);
+	  map.put("bbb",2);
+	  map.put("ccc",3);
+	  map.put("ddd.e",4);
+	  session.setAttribute("maparr", map);
+	 %>
+	  ${maparr.aaa},${maparr.bbb},${maparr.ccc},${maparr["ddd.e"]}
+    ```
+    
+    > 注意如果键是ddd.e的名称时,取值时使用的方式只能为maparr["ddd.e"]
+    
+    * EL获取对象
+
+    ```el
+    <%
+	  Student stu=new Student("zhangsan",18);
+	  application.setAttribute("s", stu);
+	 %>
+	  ${s.name},${s.age}
+    ```
+    
+    > EL最常用的就是获取对象
+    
+> 在获取对象时,name,arr[i],listarr[i],maparr[i],s.name/age前面都没有加作用域对象时,默认为pageScope,requestScope,session.Scope,applicationScope的顺序
+
+* EL的11大隐式(隐式的意思是可以省去不写)对象
+
+    * pageContext
+
+    * 作用域相关对象
+
+    pageScope
+    requestScope
+    sessionScope
+    applicationScope
+    
+    * 头信息相关对象
+
+    header
+    headerValues
+    
+    * 参数信息相关对象
+
+    param
+    paramValues
+    
+    `${param.name}`根据参数的键name获取对应的值
+    
+    * cookie
+
+    * 全局初始化参数
+
+    initParam
+
+## 05_JSTL
+
+* JSP Standard Tag Library JSP标准标签库.可以存值
+
+* JSTL为了简化JSP的写法,配合EL使用
+
+* 使用方法:
+
+    * 1.向WebContent --> WEB-INF -->  lib下引入jstl.jar和standard.jar包
+
+    * 2.添加指令`<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>`,必须引入1.1版本的url,1.0版本的不支持EL
+
+* 常用标签:
+
+    * c:set
+
+        ```jsp
+        <!-- 声明一个变量将value的值存入域中,默认的域是page -->
+         <c:set var="name" value="zhangsan"></c:set>
+    	   ${name}
+        ```
+        
+        可以更改指定的域的类型
+        ```jsp
+        <!-- 可以通过scope=""指定具体的要存的域的类型 -->
+    	 <c:set var="name" value="zhangsan" scope="session"></c:set>
+    	 ${name}
+        ```
+    
+    * c:if  
+
+        ```jsp
+         <c:set var="age" value="18"></c:set>
+    	  <c:if test="${age>0}">
+    		  满足条件就执行该语句
+    	  </c:if>
+        ```
+        
+        可以将test里的判断语句重新定义为一个变量,并指定存在的域的类型
+        ```jsp
+        <c:set var="age" value="18"></c:set>
+        <!-- 将age>0定义为flag变量,相当于flag=(age>0)并存到session域中 -->
+    	 <c:if test="${age>0}" var="flag" scope="session">
+    		 满足条件就执行该语句
+    	 </c:if>
+    	 <br>
+    	 ${flag}
+        ```
+    
+    > 该语句没有else,想多判断就多写几个if
+    
+* c:forEach
+
+    从2开始遍历,遍历到10,将遍历的值赋给变量i,存到page里,每一遍历跨2步遍历
+    ```jsp
+	  <c:forEach begin="2" end="10" var="i" step="2">
+		${i }
+	  </c:forEach>
+    ```
+    
+    items的用法
+    ```jsp
+    <%
+		List<Student> list=new ArrayList<Student>();
+		list.add(new Student("zhangsan",18));
+		list.add(new Student("lisi",19));
+		list.add(new Student("wangwu",20));
+		request.setAttribute("listarr", list);
+	%>
+	<!-- items:表示遍历哪一个对象,注意,这里必须写EL表达式
+	var:遍历出来的每一个元素用变量arr接收 -->
+	<c:forEach var="arr" items="${listarr}">
+		${arr.name}--${arr.age}<br>
+	</c:forEach>
+	```
+        
+    
+
+    
+
+    
