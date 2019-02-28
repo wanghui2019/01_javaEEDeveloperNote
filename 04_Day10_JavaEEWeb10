@@ -1,0 +1,318 @@
+# 04_Day10_JavaEEWeb10
+
+[TOC]
+
+## 01_注解
+
+* 主要作用:用于配置
+
+* 自定义注解:
+
+```java
+public @interface 注解名称{
+    public 属性类型 属性名称();
+    public 属性类型 属性名称() default 默认值;
+}
+```
+
+* 自定义注解属性支持的类型:
+
+    * 4类8种基本数据类型
+
+    * String :字符串型
+
+    * class : calss类型
+
+    * Annotation : 注解类型
+
+* 框架中常用的两种配置类型
+
+    * 1.xml:配置一些不希望写死的信息
+
+    * 2.注解:配置一些不常做修改的信息
+
+## 02_自定义注解
+
+* 注解是和类以及接口类似,是可以自己定义的,但开发中一般不自己定义注解
+
+* 需求:使用自定义注解实现Junit里的@Test功能
+
+    * 自己定义的注解代码
+    
+    ```java
+    package com.hui.annotation;
+    
+    import java.lang.annotation.ElementType;
+    import java.lang.annotation.Retention;
+    import java.lang.annotation.RetentionPolicy;
+    import java.lang.annotation.Target;
+    
+    /*
+        说明自定义注解的作用域
+        CLASS:注解作用于编译期间
+        RUNTIME：注解作用于运行期间。这里的MyTest是在运行期间起的作用。作用和@test类似
+        SOURCE：注解作用于源文件，作用和@author类似
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    //注解作用于方法上
+    @Target(ElementType.METHOD)
+    public @interface MyTest {
+        //为MyTest的注解加一个属性，属性的默认值为-1
+        public long timeout() default -1;
+    }
+    ```
+    
+    * 定义的测试代码
+    
+    ```java
+    package com.hui.annotation;
+    
+    public class UserDao {
+        //测试是否UserDao是否加载到了内存中
+        static{
+            System.out.println("加载到内存中了吗");
+        }
+        @MyTest
+        //添加
+        public void add(){}
+        //删除
+        public void delete(){}
+        @MyTest
+        //更新
+        public void update(){}
+        //查询
+        public void select(){ }
+    }
+    ```
+    
+    * 定义的主方法用于判断出测试代码中哪个方法上有注解
+    
+    ```java
+    package com.hui.annotation;
+    
+    import java.lang.reflect.Method;
+    
+    public class MyJunit {
+        public static void main(String[] args) throws Exception {
+            //将UserDao的字节码文件加载到内存中
+            Class clazz=Class.forName("com.hui.annotation.UserDao");
+            //获取UserDao类中的方法
+            Method[] ms=clazz.getMethods();
+            //对方法进行遍历
+            for (Method m:ms) {
+                //判断，如果方法上加的有@MyTest的注解，就返回true
+                Boolean flag=m.isAnnotationPresent(MyTest.class);
+                System.out.println(flag);
+            }
+        }
+    }
+    ```
+    
+## 03_再谈装饰者模式
+
+* 应用场景:二次开发
+
+* 大白话解释:
+
+    * 1.我先写了一个接口,接口里实现了一些方法
+
+    * 2.A同学实现了我的接口,然后实现了我的所有方法,在方法里写出了一套我想要的功能
+
+    * 3.我想要使用A同学方法里的功能,并在他的方法上加一点我的功能,但遇到一些问题
+
+        * 1.A同学没有给我提供源码,所有我不能在他方法基础上添加我的功能
+
+        * 2.我可以自己创建一个类实现A同学的类,然后在我的类里重写A同学的方法,并在方法上添加我的功能.但是A同学为了防止别人继承的自己代码出现方法遭到破坏的情况,于是把自己的类定义为final,不让别人继承了
+        
+    * 4.于是我就不得不考虑其它方法,装饰者模式在这时就出现了
+
+        * 1.我自己定义一个类实现我最初定义的接口,然后重写里面的所有方法
+
+        * 2.接下来的看我实现自己接口的那个代码
+
+* 我自己创建的接口代码
+
+```java
+package com.hui.decorator;
+
+public interface MyClass {
+    //我的接口里定义了一个start方法
+    public void start();
+}
+```
+
+* A同学实现的我的接口的代码
+
+```java
+package com.hui.decorator;
+
+public class AStuClass implements MyClass {
+    @Override
+    //A同学实现了我的方法，并在方法里写出来我想要的厉害功能
+    public void start() {
+        System.out.println("A同学的强大功能");
+    }
+}
+```
+
+* 我自己实现的我的接口的代码
+
+```java
+package com.hui.decorator;
+//我想要A同学的功能，并在他的功能上加一点我的功能
+public class MySonClass implements MyClass {
+    //创建局部变量
+    MyClass myClass;
+    /*
+        1.创建有参构造，传接口参数进去
+        2.以后在创建对象时，使用多态，把A的类传进去，于是执行时局部变量就变成了A创建的对象
+     */
+    public MySonClass(MyClass myClass) {
+        this.myClass = myClass;
+    }
+
+    @Override
+    public void start() {
+        //调用我的方法。1.先加上我的功能  2.再实现A同学类里的方法
+        System.out.println("加上我的功能");
+        myClass.start();
+    }
+}
+```
+
+* 测试代码
+
+```java
+package com.hui.decorator;
+
+public class TestDecorator {
+    public static void main(String[] args) {
+        //创建有参构造对象
+        MySonClass my=new MySonClass(new AStuClass());
+        my.start();
+    }
+}
+```
+
+## 04_动态代理
+
+* 为了能好一点去理解动态代理,我继续使用装饰者模式来解释,使用动态代理解决装饰者模式中出现的问题
+
+* 在装饰者模式中,如果我实现了自己的接口后,必须面对一个头疼的问题,就是要重写接口里的所有方法,如果方法有上百个时,想想代码看着就痛苦.而动态代理则可以优化一下,使得我需要增强哪个方法,就匹配哪个方法就行了
+
+* 动态代理优化装饰者模式代码
+
+    * 我自己创建的接口代码
+
+    ```java
+    package com.hui.decorator;
+    
+    public interface MyClass {
+        //我的接口里定义了一个start方法
+        public void start();
+    }
+    ```
+    
+    * A同学实现的我的接口的代码
+
+    ```java
+    package com.hui.decorator;
+    
+    public class AStuClass implements MyClass {
+        @Override
+        //A同学实现了我的方法，并在方法里写出来我想要的厉害功能
+        public void start() {
+            System.out.println("A同学的强大功能");
+        }
+    }
+    ```
+    
+    * 动态代理代码
+
+    ```java
+    package com.hui.decorator;
+
+    import java.lang.reflect.InvocationHandler;
+    import java.lang.reflect.Method;
+    import java.lang.reflect.Proxy;
+    
+    public class ProxyTest {
+        public static void main(String[] args) {
+            /*
+            getInterfaces()：获得实现的接口
+            AStuClass.class.getInterfaces()：这句话的意思是获得A通知创建的类实现的是哪些接口，返回值其实就是我最初创建的MyClass接口
+            因为AStuClass可以去实现多个接口，所有这里返回值是个接口数组，不过我实验例子里只写了一个MyClass接口
+            ProxyTest.class.getClassLoader():上面返回一个其实现接口的目的是为了获得里面一共有多少方法，这个就是把那些方法加载到ProxyTest
+            类中，只不过全部是空方法
+            new InvocationHandler()：以匿名类实现，作用是在ProxyTest的空方法体里加方法
+             */
+            MyClass my= (MyClass) Proxy.newProxyInstance(ProxyTest.class.getClassLoader(), AStuClass.class.getInterfaces(), new InvocationHandler(){
+    
+                        @Override
+                        /*
+                        Method method：方法
+                        Object[] args：方法里传入的参数，由于我写的start()方法里没有传参数，所有这里也不传
+                         */
+                        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                            if(method.getName().equalsIgnoreCase("start")){
+                                method.invoke(new AStuClass(),args);
+                            }else {
+                                method.invoke(new AStuClass(),args);
+                            }
+                            return null;
+                        }
+                    });
+                    my.start();
+        }
+    }
+    ```
+    
+## 05_使用动态代理解决request的中文乱码问题
+
+* 在浏览器页面和Servlet之间设置一个过滤器
+
+    * 如果以set方式请求,执行以下代码后再放行
+
+    `username=new String(username.getBytes("ISO-8859-1"), "utf-8");`
+    
+    * 如果是post方式请求,执行以下代码后放行
+
+    `request.setCharacterEnconding("utf-8")`
+    
+* 过滤器里所执行的代码
+
+```java
+public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
+        //先把ServletRequest的req转换为HttpServletRequest的req
+        HttpServletRequest request1= (HttpServletRequest) req;
+        //创建动态代理,将HttpServletRequest父类里的所有方法全部放到过滤器FilterPorxy类里
+        Proxy.newProxyInstance(FilterPorxy.class.getClassLoader(), request1.getClass().getInterfaces(), new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                Object obj=null;
+                //获取本次请求，如果请求方法中有getParameter的方法，就判断是set请求还是post请求
+                if (method.getName().equalsIgnoreCase("getParameter")){
+                    //获取本次请求方法
+                    java.lang.String md = request1.getMethod();
+                    //如果是set请求
+                    if ("set".equalsIgnoreCase(md)){
+                        //调用getParameter方法,请求的返回值
+                        String str= (String) method.invoke(request1,args);
+                        //转码
+                        java.lang.String vv=new String(str.getBytes("iso-8859-1"),"utf-8");
+
+                    }else {
+                        request1.setCharacterEncoding("utf-8");
+                        obj= method.invoke(request1,args);
+                    }
+                }
+                return null;
+            }
+        });
+        chain.doFilter(req, resp);
+    }
+```
+    
+    
+
+    

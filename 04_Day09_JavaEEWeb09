@@ -1,0 +1,366 @@
+# 04_Day09_JavaEEWeb09
+
+[TOC]
+
+## 01_Listener
+
+* Listener原理基于接口回调,接口回调原理
+
+* 很久以前写了一个类,类里插入了一个方法,方法用于调用接口
+
+* 共有8个监听器
+
+    ```java
+    package com.wanghui.listener;
+    
+    public class OldClass {
+        public  void  method(Listener listener){
+            for (int i=0;i<10;i++){
+                if (i==5){
+                    //但执行到这里时，就调用接口，这里体现的时多态
+                    listener.printer();
+                }
+            }
+        }
+    }
+    ```
+    
+* 接口是提前定义好的,其和原始的那个类一起创建
+
+    ```java
+    package com.wanghui.listener;
+    
+    public interface Listener {
+        void  printer();
+    }
+    ```
+
+* 以后我想要在以前的类中插入我的方法,只需要实现提前定义好的接口
+
+    ```java
+    package com.wanghui.listener;
+    
+    public class SonListener implements  Listener {
+    
+        @Override
+        public void printer() {
+            System.out.println("到5了来执行我");
+        }
+    }
+    ```
+    
+## 02_3个监听三个作用域创建和销毁的监听器
+
+* 1.定义一个类,实现接口
+
+    * 以HttpSessionListener为例
+
+    ```java
+    public class MyHttpSessionListener implements HttpSessionListener {
+
+        public void sessionCreated(HttpSessionEvent arg0) {
+    	       System.out.println("初始化了");
+        }
+    
+        public void sessionDestroyed(HttpSessionEvent arg0) {
+    		  System.out.println("销毁了");
+        }
+    }
+    ```
+
+* 2.在XML文件中注册 | 配置监听器
+
+```xml
+<listener>
+<listener-class>监听器的路径</listener-class>
+</listener>
+```
+
+    * application --ServletContext
+
+    * request --httpServletRequest
+
+    * session --httpSession
+
+
+    1.ServletContextListener
+    
+        servletcontext创建:
+        
+            启动服务器
+            
+        servletcontext销毁
+        
+            关闭服务器,从服务器移除项目
+            
+    2.ServletRequestListener
+    
+        request创建
+        
+            访问服务器上的任意资源都会有请求出现
+            
+            访问 html:会出现request
+            
+            访问 JSP:会出现request
+            
+            访问 servlet:会出现request
+            
+        request销毁
+        
+            服务器对这次请求作出了响应
+            
+    3.HttpSessionListener
+    
+        session创建,既是调用getSession
+        
+            访问 html:不会,因为html不能调用getSession,java程序都不能写
+                
+            访问 JSP:会出现session,内置对象中有session
+                
+            访问 servlet:会出现session
+            
+        session的销毁
+        
+            超时30分钟
+            
+            非正常关闭服务区:销毁
+            
+            正常关闭服务器:序列化
+ 
+ * 常用的两个监听器作用:
+
+    * ServletContextListener
+
+        利用它在servletContext创建的时候
+        
+            1.完成自己想要的初始化工作
+            
+            2.执行自定义任务调度,执行某一个任务
+            
+    * HttpSessionListener
+
+        统计在线人数  
+        
+## 03_3个监听三个作用域属性状态变更
+
+* 监听在作用域中值 添加|替换|移除的动作
+
+    * 1.ServletRequestAttributeListener监听添加|替换|移除
+
+    ```jsp
+    //jsp文件中的代码
+    //添加
+    request.setAttribute("name", "zhangsan");
+    //更改
+	  request.setAttribute("name", "lisi");
+	  //移除
+	  request.removeAttribute("name");
+    ```
+    
+    ```java
+    //监听代码
+    public class MyServletRequestAttributeListener implements ServletRequestAttributeListener {
+	//有添加就监听  对应
+	public void attributeAdded(ServletRequestAttributeEvent arg0) {
+		System.out.println("添加了");
+	}
+	//有移除就监听
+	public void attributeRemoved(ServletRequestAttributeEvent arg0) {
+		System.out.println("移除了");
+	}
+	//有更改就监听
+	public void attributeReplaced(ServletRequestAttributeEvent arg0) {
+		System.out.println("更改了");
+	}
+}
+    ```
+    
+* 2.ServletContextAttributeListener监听添加|替换|移除
+
+* 3.HttpSessionAttributeListener监听添加|替换|移除
+
+## 04_监听httpSession里面存值的状态变更
+
+* 这类监听器不用注册
+
+    * 1.HttpSessionBindingListener:用于监听对象与session绑定与解除绑定的动作
+
+    ```jsp
+    //jsp里的代码
+    MyHttpSessionBindingListener javaBean=new MyHttpSessionBindingListener();
+		javaBean.setName("zhangsan");
+		session.setAttribute("name", javaBean);
+		session.removeAttribute("name");
+    ```
+    
+    ```java
+    //java代码
+    public class MyHttpSessionBindingListener implements HttpSessionBindingListener {
+		private String name;
+		private int age;
+		
+		public void setName(String name) {
+			this.name = name;
+		}
+		public void setAge(int age) {
+			this.age = age;
+		}
+	//绑定值
+	public void valueBound(HttpSessionBindingEvent arg0) {
+		System.out.println("绑定了");
+	}
+	//解除值
+	public void valueUnbound(HttpSessionBindingEvent arg0) {
+		System.out.println("解除绑定了");
+	}
+}
+    ```
+    
+    * 2.HttpSessionActivationListener:监听现在session的值是钝化还是活化
+
+        * 钝化,序列化:把内存的数据存储到硬盘上
+        
+        * 活化,反序列化:把内存的数据读到内存中
+
+        * 作用:当session中数据存的太多而又暂时不用时,可以将数据先序列化到硬盘上,用的时候在反序列化
+
+            * 存:三种方式可以设置文件设置多久后序列化,然后正常退出服务器就存到了磁盘上
+
+            1.在tomcat里面conf/context.xml里面配置
+            
+                对所有的运行在这个服务器的项目都生效
+                
+            2.在conf/Catalina/localhost/context.xml配置
+            
+                多localhost生效
+                
+            3.在自己的web工程项目中的META-INF下建context.xml文件
+            
+                只对当前的工程生效
+                
+            * context.xml文件
+            
+                * maxIdleSwap="1":设置多久后序列化,这里是1分钟后
+
+                * directory="wanghui":序列化存入的文件名称
+            
+                ```xml
+                <Context>
+                    <Manager className="org.apache.catalina.session.PersistentManager" maxIdleSwap="1">
+                        <Store className="org.apache.catalina.session.FileStore" directory="wanghui"/>
+                    </Manager>
+                </Context>
+                ```
+                
+                * 取:调用session的取功能就能反序列化
+
+* 配置代码
+
+    ```java
+     public class JavaBean implements HttpSessionActivationListener, Serializable {
+    private  String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    //钝化，序列化
+    public void sessionWillPassivate(HttpSessionEvent httpSessionEvent) {
+        System.out.println("存到磁盘上了");
+    }
+    //活化，反序列化
+    @Override
+    public void sessionDidActivate(HttpSessionEvent httpSessionEvent) {
+        System.out.println("到内存上了");
+    }
+}
+   
+    ```
+    
+## 05_Filter
+            
+* 过滤器,其实就是对客户端发出来的请求进行过滤,浏览器发出,然后服务器派servlet处理.在中间就可以过滤,其实过滤器起到的是拦截的作用,相当于存在于客户端于servlet之间,所以能在servlet之前过滤
+
+    * 作用:
+    
+        1.对一些敏感词汇进行过滤
+        
+        2.统一设置编码
+        
+        3.自动登录
+        
+    * 如何使用Filter
+    
+        1.定义一个类,实现Filter
+        
+        2.注册过滤器
+        
+        ```xml
+        <filter>
+            <filter-name>FilterOne</filter-name>
+            <filter-class>com.hui.filter.FilterOne</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>FilterOne</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+        ```
+        
+        ```java
+        public class FilterOne implements javax.servlet.Filter {
+            //销毁
+            public void destroy() {
+            }
+            //拦截
+            public void doFilter(javax.servlet.ServletRequest req, javax.servlet.ServletResponse resp, javax.servlet.FilterChain chain) throws javax.servlet.ServletException, IOException {
+                System.out.println("filter one");
+                chain.doFilter(req, resp);  //放行,没有这句,就直接拦死了
+            }
+            public void init(javax.servlet.FilterConfig config) throws javax.servlet.ServletException {
+            }
+        }
+        ```
+        
+    * 声明周期
+
+        * 创建:服务器开启时
+
+        * 销毁:关闭服务器
+
+* Filter的顺序问题
+
+    * 按照在xml里配置文件的顺序进行拦截
+
+* 注意事项
+
+    * 1.init方法的参数FilterConfig,可以用于获取filter在注册的名字以及初始化参数,这里的初衷和ServletConfig是一样的
+
+    * 如果想放行,那么在dofilter方法里操作,使用参数chain
+
+        `chain.doFilter(req, resp);`
+        
+    * <url-pattern>/*</url-pattern>写法格式与servlet一样
+
+        * 1.全路径匹配 以 / 开头.
+
+        `/LoginServlet`拦截LoginServlet
+        
+        * 2.以目录匹配 以 / 开头 以 * 结束
+
+        `/demo01/*`
+        
+        * 3.以后缀名匹配.以*开头,以后缀名结束
+
+        `*.jsp   *.html   *.do`
+        
+        * 4.针对dispatcher设置
+
+            * REQEEST:只要是请求过来,都拦截,默认就是REQUEST
+            
+            * FORWORD:只有是转发都拦截
+            
+            * ERROR:页面出错发生跳转
+            
+            * INCLUDE:包含页面的时候就拦截
+

@@ -1,0 +1,219 @@
+# 04_Day11_JavaEEWeb11
+
+## 01_Linux的根目录
+
+* /bin 二进制可执行命令
+
+* /dev 设备特殊文件
+
+* /etc 系统管理和配置文件
+
+* /home 用户主目录的基点，比如用户user的主目录就是/home/user，可以用~user表示
+
+* /lib 标准程序设计库，又叫动态链接共享库，作用类似windows里的.dll文件
+
+* /tmp 公共的临时文件存储点
+
+* /root 系统管理员的主目录
+
+* /usr 最庞大的目录，要用到的应用程序和文件几乎都在这个目录,一般装的软件都存这里
+
+* /opt 额外安装的可选应用程序包所放置的位置。一般情况下，我们可以把tomcat等都安装到这里。
+
+## 02_Linux常用命令
+
+* pwd:打印当前目录
+
+* cd/:切换到根目录
+
+* ll:查看当前目录下的内容  相当于ls -l
+
+* ls:命令
+
+    ls:查看当前目录下的内容
+    
+    ls -a:查看当前目录下的内容,包括隐藏文件
+    
+    ls -t:用文件或者目录的更改时间排序
+    
+    --help:在线帮助
+    
+* mkdir:创建目录.
+
+    `mkdir a`创建目录a
+
+    * -p:没有父目录就创建
+
+    * v:查看目录的创建过程
+
+    `mkdir -pv b/c/d`创建目录b/c/d,并显示出创建过程
+
+* 查看文档的命令
+    
+    * cat:猫一眼看看
+    
+    * more:分页显示文件内容
+    
+        * Enter:向下一行一行翻
+    
+        * 空格键:一页一页翻
+    
+        * b :返回上一页
+    
+        * q :退出more
+
+    * less(功能多一些,可以常用这个)
+
+        * -m 百分号显示分页
+
+        * -n 显示每行的行号
+
+        * 空格键:一页一页翻
+
+        * b :后退一页
+
+        * u : 后退半页
+
+        * Enter:向下一行一行翻
+
+        * 向上方向键:回退一行
+
+        * /字符串 :向下搜索字符串
+
+        `/a`:向下搜索‘a’
+        
+        * ?字符串 :向上搜索字符串
+
+        * v :进入vim编译器
+
+        * 左右方向键.相当于水平滚动条
+
+        * q : 退出
+
+    * tail 命令: 查看文件末尾内容
+    
+    `tail -10 /root/install.log `查看install.log文件中后10行内容
+    
+* 文件管理命令
+
+    * 复制文件
+    
+    `cp   install.log  install02.log`
+    
+    `cp -b  install.log  install02.log`  :如果覆盖文件时,可以将源文件做一个备份
+    
+    `cp  ./install.log`   ../   : 将当前目录下的install.log复制到父级目录
+    
+    `cp  /root/install.log   /bin/1.txt`  :将/root下的install.log文件复制到根目录下的bin目录下的1.txt中
+    
+    * 复制目录(无论是单层目录还是多层目录都可以复制):
+    
+    `cp  -r  ./a  ./b`
+    
+    `cp  -r  /root/a  /root/z`
+    
+    * mv剪切文件
+    
+    `mv  /root/install.log  /root/a/`
+    
+    * 重命名文件
+    
+    `mv  /root/install.log  /root/test.log`
+    
+    * 删除文件
+    
+    `rm -f  文件名称`
+    
+    `rm -f  /root/文件名称`
+    
+    * 删除目录
+    
+    `rm -rf 目录名称`
+    
+    `rm -rf  /root/目录名称`
+    
+    * 在某个目录下搜索文件/目录
+    
+    `find  /root/   -name   ‘in*’`  :在根目录下的root目录下寻找名称中包含in而且是以in开头的文件/目录
+    
+* 系统命令
+
+    * grep: 过滤任务 经常和其他命令联合使用
+    
+    `grep -i 名称`
+    
+    `cat  /root/install.log`
+    
+    `cat  /root/install.log  |  grep  -i   mysql `:查看install.log文件中包含mysql内容信息
+    
+    `ps -ef `:相当于任务管理器,对进程的一次查看
+    
+    `ps -ef  | grep -i crond ` : 查看系统中crond的进程信息
+    
+    * 管道命令: 命令的一种使用方式
+    
+    `命令1  |  命令2` 命令1的输出是命令2的输入
+    
+    `cat  /root/install.log  |  grep  -i   mysql` 
+    
+    `ps -ef | grep -i crond`
+    
+    * 杀死进程  kill -9 进程id
+    
+    * 查看IP: ifconfig
+    
+    * 查看机器是否连接通畅:  ping 对方机器ip
+
+* 解压缩命令:
+
+    * 语法:tar命令
+
+    * -c:建立一个压缩文件的参数指令。就是压缩
+
+    * -x:解开一个压缩文件的参数指令  就是解压
+
+    * -z:是否需要用gzip压缩
+
+    * -v:压缩的过程中显示文件
+
+    * -f:使用档名,在f之后要立即接档名
+
+    `tar  -zcvf  /root/xxx.tar   /root/a/`
+      
+    `tar  -zxvf  ./xxx.tar`
+  
+* touch [options] filename
+
+    * -a：改变访问时间
+    
+    * -m：改变改动时间
+    
+    * -t timestamp：改变访问时间和改动时间为timestamp
+
+* 更改目录/文件用户权限
+
+    * chmod  u-rwx   ./1.txt   取消当前用户对1.txt的”读写执行”权限
+    
+    * chmod  g-rwx   ./1.txt   取消当前组用户对1.txt的”读写执行”权限
+    
+    * chmod  o-rwx   ./1.txt   取消其他用户对1.txt的”读写执行”权限
+
+
+
+* 以数字形式更改目录/文件权限的规则如下:
+
+* chmod  777  ./1.txt  设置当前用户,当前组用户以及其他所有用户对文件1.txt的权限
+    
+    ```test
+    0:不具有任何权限    
+    1: 可以执行    
+    2:可以写　　　
+    ３(1+2):可以执行,可以写
+    4:可以读  
+    5:(1+4):可以执行,可以读   
+    6:(2+4):可以写可以读 
+    7:(1+2+4):可以读,写,执行
+    ```
+    
+    
+    
